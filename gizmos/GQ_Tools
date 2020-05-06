@@ -1,0 +1,66 @@
+set cut_paste_input [stack 0]
+version 9.0 v9
+push $cut_paste_input
+Group {
+ name GQTools_v3
+ help "Write Before:\n\nnuke.toNode(\"GTools\").knob(\"disable\").setValue(0)\n\nWrite After:\n\nnuke.toNode(\"GTools\").knob(\"disable\").setValue(1)"
+ tile_color 0x509381ff
+ selected true
+ xpos -181
+ ypos 153
+ addUserKnob {20 USR l User}
+ addUserKnob {1 TypeInput l Type t "No Spaces, Correct Capitals!"}
+ TypeInput "Blur Defocus"
+ addUserKnob {22 selectByClass l "Select Type" -STARTLINE T "def gq_selectByClass():\n    masterNode = nuke.thisNode()\n   \n    nodeTypes = masterNode.knob(\"TypeInput\").value()\n    nodeTypesSplit = nodeTypes.split(\" \")\n     \n    nuke.root().begin()\n    nuke.selectAll()\n    allNodes = nuke.root().selectedNodes()\n    \n    for i in allNodes:\n        if i.Class() not in nodeTypesSplit:\n            i.setSelected(False)\n\ngq_selectByClass()"}
+ addUserKnob {22 selAll l "Select All Nodes" T "nuke.root().begin()\nnuke.selectAll()" +STARTLINE}
+ addUserKnob {22 enAll l "Enable All Nodes" t "Enables All disabled Nodes" -STARTLINE T "def gq_EnAll():\n    nuke.root().begin()\n    nuke.selectAll()\n    allNodes = nuke.selectedNodes()\n\n    for node in allNodes:\n        if node.knob(\"disable\"):\n            node.knob(\"disable\").setValue( False )\n\n        else:\n            print (node.name() + \" has no Disable\")\n\ngq_EnAll()"}
+ addUserKnob {22 hevDisable l "Disable Heavy" t "Disables:\n- Defocus\n- ZDefocus\n- PGBokeh\n- VectorBlur\n- MotionBlur" T "def gq_disHeavy():\n    nuke.root().begin()\n    allNodes = nuke.allNodes()\n    classTypes = \[\"Defocus\", \"VectorBlur\", \"MotionBlur\", \"pgBokeh\", \"ZDefocus2\"]\n\n    for node in allNodes:\n        for cType in classTypes:\n            if cType in node.Class():\n                node.knob(\"disable\").setValue(True)\n\ngq_disHeavy()" +STARTLINE}
+ addUserKnob {26 ""}
+ addUserKnob {20 DisableToolsGroup l "Disable Tools" n 1}
+ addUserKnob {22 linkDisableScript l "Link Disable" T "def gq_LinkDisable():\n\n    curNodes = nuke.root().selectedNodes()\n    gTools = nuke.thisNode()\n\n    for n in curNodes:\n        if n.knob(\"name\") != gTools.name():\n            n.knob(\"disable\").setExpression(\"\[ if \{\[value root.\" + gTools.name() + \".disable]\} \{     return 1 \} else \{return value \} ]\")\n    \ngq_LinkDisable()" +STARTLINE}
+ addUserKnob {22 unLinkDisable l "Unlink Disable" -STARTLINE T "def gq_UnLinkDisable():\n\n    curNodes = nuke.root().selectedNodes()\n    gTools = nuke.thisNode()\n\n    for n in curNodes:\n        if n.knob(\"name\") != gTools.name():\n            n.knob(\"disable\").clearAnimated()\n    \ngq_UnLinkDisable()"}
+ addUserKnob {22 writeLink l "Link Write Node" t "Select Write node and hit button to link nodes, meaning when you start a render the GTools node will be enabled" T "def gq_linkWrite():\n\n    curNodes = nuke.root().selectedNodes()\n    gTools = nuke.thisNode()\n\n    for n in curNodes:\n        if n.Class() == \"Write\":\n            n.knob(\"beforeRender\").setValue(\"nuke.toNode(\\\"\" + gTools.name() + \"\\\").knob(\\\"disable\\\").setValue(0)\")\n            n.knob(\"afterRender\").setValue(\"nuke.toNode(\\\"\" + gTools.name() + \"\\\").knob(\\\"disable\\\").setValue(1)\")\n            n.knob(\"tile_color\").setValue(1351844351)\n\ngq_linkWrite()" +STARTLINE}
+ addUserKnob {22 writeUnlink l "Unlink Write Node" -STARTLINE T "curNodes = nuke.root().selectedNodes()\nfor n in curNodes:\n    if n.Class() == \"Write\":\n        n.knob(\"beforeRender\").setValue(\"\")\n        n.knob(\"afterRender\").setValue(\"\")\n\tn.knob(\"tile_color\").setValue(0)"}
+ addUserKnob {20 endGroup n -1}
+ addUserKnob {26 ""}
+ addUserKnob {20 ReadPropertiesGroup l "Read Properties" n 1}
+ addUserKnob {4 ReadBeforeChoice l Before M {hold loop bounce black}}
+ addUserKnob {4 ReadAfterChoice l After -STARTLINE M {hold loop bounce black ""}}
+ addUserKnob {22 setBeforeAfter l "Set Before / After" -STARTLINE T "#gtoolsReadProperties\n\ndef gq_setBefAft():\n    curNodes = nuke.root().selectedNodes()\n    masterNode = nuke.thisNode()\n   \n    \n    for n in curNodes: #loop through list\n        if n.Class() == \"Read\": #if n in loop has class of \"read\":\n\n            n.knob(\"before\").setValue(masterNode.knob(\"ReadBeforeChoice\").value())\n            n.knob(\"after\").setValue(masterNode.knob(\"ReadAfterChoice\").value())\n\ngq_setBefAft()"}
+ addUserKnob {3 rangeStart l Start}
+ addUserKnob {3 rangeEnd l End -STARTLINE}
+ addUserKnob {22 setStartEnd l "Set Start / End" -STARTLINE T "#gtoolsReadProperties\n\ndef gq_setStartEnd():\n    curNodes = nuke.root().selectedNodes()\n    masterNode = nuke.thisNode()\n    \n   \n    startFrame = masterNode.knob(\"rangeStart\").value()\n    endFrame = masterNode.knob(\"rangeEnd\").value()\n    \n    \n    for n in curNodes: #loop through list\n        if n.Class() == \"Read\": #if n in loop has class of \"read\":     \n            n.knob(\"first\").setValue(int(startFrame))\n            n.knob(\"origfirst\").setValue(int(startFrame))\n            n.knob(\"last\").setValue(int(endFrame))\n            n.knob(\"origlast\").setValue(int(endFrame))\n\ngq_setStartEnd()"}
+ addUserKnob {20 endGroup_2 l endGroup n -1}
+ addUserKnob {26 ""}
+ addUserKnob {22 GradeConvertGo l "Grade Convert" T "def gq_gradeConvertWin():\n\n    p = nuke.Panel(\"GQ_gradeConvert\")\n\n    p.addEnumerationPulldown(\"Tone\",\"Master Shadows Midtones Highlights\") #get user input for colour correct target\n\n    if not p.show():\n        return\n\n    target = p.value(\"Tone\") #set user input to \"target\"\n\n    gq_gradeConvert(target)\n\ndef gq_gradeConvert(target):\n    nuke.root().begin()    \n    if target == \"Master\":\n        gain = \"gain\"\n        gamma = \"gamma\"\n        add = \"offset\"\n    if target == \"Shadows\":\n        gain = \"shadows.gain\"\n        gamma = \"shadows.gamma\"\n        add = \"shadows.offset\"\n    if target == \"Midtones\":\n        gain = \"midtones.gain\"\n        gamma = \"midtones.gamma\"   \n        add = \"midtones.offset\"    \n    if target == \"Highlights\":\n        gain = \"highlights.gain\"\n        gamma = \"highlights.gamma\"  \n        add = \"highlights.offset\" \n\n    mySel = nuke.root().selectedNodes()\n    \n\n    for i in mySel:\n        if i.Class() == \"Grade\":\n            c = nuke.nodes.ColorCorrect()\n\n            #colour inputs\n            c.knob(gain).setValue(i.knob(\"white\").getValue())\n            c.knob(gamma).setValue(i.knob(\"gamma\").getValue())\n            c.knob(add).setValue(i.knob(\"add\").getValue())\n\n            #mix and mask inputs\n            c.knob(\"mix\").setValue(i.knob(\"mix\").getValue())\n            iMaskInput = i.input(1)\n            iColInput = i.input(0)\n\n            c.connectInput(1,iMaskInput)\n            c.connectInput(0,iColInput)\n\n            #set position\n            c.knob(\"xpos\").setValue(i.knob(\"xpos\").getValue()+100)\n            c.knob(\"ypos\").setValue(i.knob(\"ypos\").getValue())\n\n        else:\n            print \"this only works for grades\"\n\ngq_gradeConvertWin()" +STARTLINE}
+ addUserKnob {26 gradeConvertText l "" +STARTLINE T "Use this to convert grade node data\nto a colour correct"}
+ addUserKnob {26 ""}
+ addUserKnob {22 openReadPathScript l "Open Read Path" T "import os\n#import platform\n#import subprocess\n\nnuke.root().begin()\n\ndef open_file():\n    mySel = nuke.selectedNodes()\n\n    for i in mySel:\n        filePath = mySel\[0].knob(\"file\").getValue()\n\n        filePathSplit = filePath.rsplit(\"/\",2)\n\n        os.startfile(filePathSplit\[0])  \n\nopen_file()" +STARTLINE}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 0
+ }
+ Output {
+  name Output1
+  xpos 0
+  ypos 300
+ }
+ ColorCorrect {
+  inputs 0
+  gamma 0.44
+  mix 0.35
+  name ColorCorrect1
+  xpos 3748
+  ypos 362
+ }
+ ColorCorrect {
+  inputs 0
+  gamma 0.44
+  mix 0.35
+  name ColorCorrect2
+  xpos 3749
+  ypos 369
+ }
+end_group
