@@ -1,6 +1,8 @@
 # Nuke-Public-Tools
 My freely available scripts and tools for Nuke
 
+---
+
 ## GQ_Tools
 A collection of smaller scripts and tools I use regularly
 
@@ -29,3 +31,11 @@ Sometimes I find myself working on a grade node, and deciding I want to use Satu
 ### Open Read Path
 
 This will open up a file browser at the file path for any read nodes you have selected
+
+---
+
+## LightWrap_GQ
+
+This is my own custom light wrap node, I find the default node frustrating as if often messes with other channels if used directly in the main pipe. My node only affects the RGB channels so you no longer have to worry about that.
+
+There are also two types of blur, a standard soft gausian, and an exponential blur, this allows you to get a really nice falloff in the light wrap, as well as the softer colour bleed you can get with the standard lightwrap node
