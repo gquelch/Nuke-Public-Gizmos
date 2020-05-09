@@ -1,0 +1,332 @@
+#! C:/Program Files/Nuke9.0v9/nuke-9.0.9.dll -nx
+version 9.0 v9
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="-8" y="-8" w="2576" h="1066" maximized="1" screen="0">
+        <splitter orientation="1">
+            <split size="40"/>
+            <splitter orientation="2">
+                <split size="1004"/>
+                <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                    <page id="Toolbar.1"/>
+                </dock>
+            </splitter>
+            <split size="2516" stretch="1"/>
+            <splitter orientation="1">
+                <split size="1288"/>
+                <splitter orientation="2">
+                    <split size="1004"/>
+                    <dock id="" activePageId="Viewer.2">
+                        <page id="uk.co.thefoundry.scripteditor.2"/>
+                        <page id="Viewer.2"/>
+                        <page id="Viewer.1"/>
+                    </dock>
+                </splitter>
+                <split size="809"/>
+                <dock id="" activePageId="DAG.1" focus="true">
+                    <page id="DAG.1"/>
+                    <page id="Curve Editor.1"/>
+                    <page id="DopeSheet.1"/>
+                </dock>
+                <split size="411"/>
+                <splitter orientation="2">
+                    <split size="688"/>
+                    <dock id="" activePageId="Properties.1">
+                        <page id="Properties.1"/>
+                    </dock>
+                    <split size="312"/>
+                    <dock id="" activePageId="uk.co.thefoundry.histogram.1">
+                        <page id="uk.co.thefoundry.histogram.1"/>
+                        <page id="uk.co.thefoundry.waveformscope.1"/>
+                        <page id="uk.co.thefoundry.vectorscope.1"/>
+                    </dock>
+                </splitter>
+            </splitter>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name C:/Users/georgeq/Documents/nuke_tools/gizmos/GQ_LightWrap.nk
+ frame 150
+ first_frame 120
+ last_frame 222
+ lock_range true
+ format "2880 2160 0 0 2880 2160 2 Anamorphic"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+}
+Group {
+ inputs 0
+ name GQ_LightWrap
+ xpos 275
+ ypos -149
+ addUserKnob {20 CTRL}
+ addUserKnob {41 LightWrapOutput l Output T CTRLs.LightWrapOutput}
+ addUserKnob {41 ExponentialDisable l "Disable Exponential" T CTRLs.ExponentialDisable}
+ addUserKnob {41 DisableSoft l "Disable Soft" -STARTLINE T CTRLs.DisableSoft}
+ addUserKnob {41 finalMix l "Mix Strength" T CTRLs.finalMix}
+ addUserKnob {41 BGThreshold l "BG Threshold" T CTRLs.BGThreshold}
+ addUserKnob {26 ""}
+ addUserKnob {41 softBlur l "Soft Blur" T CTRLs.softBlur}
+ addUserKnob {41 softIntensity l "Soft Intensity" T CTRLs.softIntensity}
+ addUserKnob {26 ""}
+ addUserKnob {41 ExpoIntensity l "Exponential Intensity" T CTRLs.ExpoIntensity}
+ addUserKnob {41 ExpoGamma l "Exponential Gamma" T CTRLs.ExpoGamma}
+ addUserKnob {41 ExponentialBlurSize l "Exponential Size" T CTRLs.ExponentialBlurSize}
+ addUserKnob {26 ""}
+ addUserKnob {41 bgBlur l "BG Blur" T CTRLs.bgBlur}
+ addUserKnob {41 fgBlur l "FG Blur" T CTRLs.fgBlur}
+}
+ Input {
+  inputs 0
+  name FG
+  xpos 65
+  ypos -377
+ }
+ Dot {
+  name Dot2
+  xpos 99
+  ypos -305
+ }
+set N747e800 [stack 0]
+push $N747e800
+push $N747e800
+ Blur {
+  channels alpha
+  size {{parent.CTRLs.fgBlur}}
+  name FG_Blur
+  xpos 311
+  ypos -315
+ }
+ Merge2 {
+  inputs 2
+  operation out
+  Achannels {-rgba.red -rgba.green -rgba.blue rgba.alpha}
+  output {-rgba.red -rgba.green -rgba.blue rgba.alpha}
+  name edgemerge
+  label edgemerge
+  xpos 311
+  ypos -232
+ }
+ Input {
+  inputs 0
+  name BG
+  xpos 439
+  ypos -417
+  number 1
+ }
+ Keyer {
+  operation "luminance key"
+  range {0 {parent.CTRLs.BGThreshold} 1 1}
+  name Keyer1
+  xpos 439
+  ypos -374
+ }
+ Premult {
+  name Premult1
+  xpos 439
+  ypos -336
+ }
+ Blur {
+  size {{parent.CTRLs.bgBlur}}
+  name BG_Blur
+  xpos 439
+  ypos -282
+ }
+ Merge2 {
+  inputs 2
+  operation mask
+  bbox A
+  name Merge1
+  xpos 439
+  ypos -219
+ }
+set N74b3000 [stack 0]
+ Dot {
+  name Dot1
+  xpos 639
+  ypos -224
+ }
+set N74b2c00 [stack 0]
+ Blur {
+  size {{Blur6.size*2}}
+  name Blur7
+  xpos 1330
+  ypos -165
+ }
+push $N74b2c00
+ Blur {
+  size {{Blur5.size*2}}
+  name Blur6
+  xpos 1205
+  ypos -162
+ }
+push $N74b2c00
+ Blur {
+  size {{Blur4.size*2}}
+  name Blur5
+  xpos 1076
+  ypos -167
+ }
+push $N74b2c00
+ Blur {
+  size {{Blur3.size*2}}
+  name Blur4
+  xpos 952
+  ypos -166
+ }
+push $N74b2c00
+ Blur {
+  size {{Blur2.size*2}}
+  name Blur3
+  xpos 834
+  ypos -167
+ }
+push 0
+push $N74b2c00
+ Blur {
+  size {{Blur1.size*2}}
+  name Blur2
+  xpos 709
+  ypos -167
+ }
+push $N74b2c00
+ Blur {
+  size {{parent.CTRLs.ExponentialBlurSize}}
+  name Blur1
+  xpos 605
+  ypos -165
+ }
+ Merge2 {
+  inputs 7+1
+  name Merge2
+  xpos 605
+  ypos -95
+ }
+ Grade {
+  multiply {{parent.CTRLs.ExpoIntensity}}
+  gamma {{parent.CTRLs.ExpoGamma}}
+  name Grade1
+  xpos 605
+  ypos -38
+ }
+ Merge2 {
+  inputs 2
+  operation mask
+  bbox A
+  name Merge4
+  xpos 605
+  ypos 29
+  disable {{parent.CTRLs.DisableExponentialMask}}
+ }
+set N74f2c00 [stack 0]
+push $N747e800
+push $N74b3000
+ Blur {
+  size {{parent.CTRLs.softBlur}}
+  name Blur8
+  xpos 439
+  ypos -158
+ }
+ Multiply {
+  value {{parent.CTRLs.softIntensity}}
+  name Multiply1
+  xpos 439
+  ypos -94
+ }
+ Merge2 {
+  inputs 2
+  operation mask
+  bbox A
+  name Merge6
+  xpos 439
+  ypos -11
+  disable {{parent.CTRLs.DisableSoftMask}}
+ }
+set N74f2000 [stack 0]
+push $N74f2c00
+push $N74f2000
+push $N747e800
+ Shuffle {
+  red black
+  green black
+  blue black
+  alpha black
+  name Shuffle1
+  xpos 303
+  ypos 1
+ }
+ Merge2 {
+  inputs 2
+  bbox A
+  name Merge7
+  xpos 303
+  ypos 46
+  disable {{parent.CTRLs.DisableSoft}}
+ }
+ Merge2 {
+  inputs 2
+  name Merge3
+  xpos 303
+  ypos 88
+  disable {{parent.CTRLs.ExponentialDisable}}
+ }
+set N7f77d800 [stack 0]
+push $N7f77d800
+push $N747e800
+ Merge2 {
+  inputs 2
+  operation plus
+  Achannels {rgba.red rgba.green rgba.blue -rgba.alpha}
+  mix {{parent.CTRLs.finalMix}}
+  name Merge5
+  xpos 65
+  ypos 101
+ }
+ Switch {
+  inputs 4
+  which {{CTRLs.LightWrapOutput}}
+  name Switch1
+  xpos 65
+  ypos 211
+  hide_input true
+ }
+ Output {
+  name Output1
+  selected true
+  xpos 65
+  ypos 261
+ }
+ NoOp {
+  inputs 0
+  name CTRLs
+  xpos -110
+  ypos -86
+  addUserKnob {20 noOpCTRL}
+  addUserKnob {7 finalMix l "Mix Strength"}
+  finalMix 1
+  addUserKnob {7 BGThreshold l "BG Threshold"}
+  BGThreshold 1
+  addUserKnob {7 bgBlur l "BG Blur" R 0 100}
+  bgBlur 10
+  addUserKnob {7 fgBlur l "FG Blur" R 1 100}
+  fgBlur 1
+  addUserKnob {7 ExponentialBlurSize l "Exponential Size" R 0.1 1.5}
+  ExponentialBlurSize 1
+  addUserKnob {6 DisableExponentialMask l "Disable Exponential Mask" +STARTLINE}
+  addUserKnob {6 DisableSoftMask l "Disable Soft Mask" +STARTLINE}
+  addUserKnob {6 ExponentialDisable l "Disable Exponential" +STARTLINE}
+  addUserKnob {6 DisableSoft l "Disable Soft" +STARTLINE}
+  addUserKnob {7 ExpoIntensity l "Exponential Intensity" R 0 100}
+  ExpoIntensity 1
+  addUserKnob {7 ExpoGamma l "Exponential Gamma" R 0 5}
+  ExpoGamma 1
+  addUserKnob {7 softBlur l "Soft Blur" R 0 100}
+  softBlur 10
+  addUserKnob {7 softIntensity l "Soft Intensity" R 0 200}
+  softIntensity 10
+  addUserKnob {4 LightWrapOutput l Output M {Result Combined Soft Exponential ""}}
+ }
+end_group
