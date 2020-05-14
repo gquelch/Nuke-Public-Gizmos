@@ -1,6 +1,9 @@
 # Nuke-Public-Tools
 My freely available scripts and tools for Nuke
 
+[GQ_Tools](https://github.com/gquelch/Nuke-Public-Gizmos#gq_tools)
+
+[LightWrap_GQ](https://github.com/gquelch/Nuke-Public-Gizmos#lightwrap_gq)
 
 ---
 
