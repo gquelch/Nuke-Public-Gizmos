@@ -41,7 +41,6 @@ Sometimes I find myself working on a grade node, and deciding I want to use Satu
 
 This will open up a file browser at the file path for any read nodes you have selected
 
----
 
 ## LightWrap_GQ
 
