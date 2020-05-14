@@ -8,6 +8,8 @@ Jump to Documentation:
 
 [LightWrap_GQ](https://github.com/gquelch/Nuke-Public-Gizmos#lightwrap_gq)
 
+[ColourChecker_GQ](https://github.com/gquelch/Nuke-Public-Gizmos/blob/master/README.md#colourchecker_gq)
+
 ---
 
 ## GQ_Tools
