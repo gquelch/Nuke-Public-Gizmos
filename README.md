@@ -60,4 +60,4 @@ You'll want to move the 4 controls in Reference and Render dropdowns to the corn
 
 With this workflow you can simply copy the grade nodes over to your CG elements and use them as a starting point for the grade.
 
-I have written up a more detailed workflow guide in another post, which you can find here
+I have written up a more detailed workflow guide in another post, which you can find [here](https://gquelch.github.io/2020/05/14/Colour-Checker-Nuke-Workflow-d6e754f150584b09ba230bf43706539d/)
