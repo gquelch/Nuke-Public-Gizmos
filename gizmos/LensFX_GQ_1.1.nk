@@ -1,0 +1,677 @@
+#! F:/programmes/Nuke12.1v2/nuke-12.1.2.dll -nx
+version 12.1 v2
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="-1" y="-8" w="2560" h="1377" maximized="1" screen="0">
+        <splitter orientation="1">
+            <split size="40"/>
+            <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                <page id="Toolbar.1"/>
+            </dock>
+            <split size="2054" stretch="1"/>
+            <splitter orientation="1">
+                <split size="1270"/>
+                <splitter orientation="2">
+                    <split size="1150"/>
+                    <dock id="" activePageId="Viewer.1">
+                        <page id="uk.co.thefoundry.scripteditor.2"/>
+                        <page id="Viewer.1"/>
+                    </dock>
+                    <split size="185"/>
+                    <dock id="" activePageId="DopeSheet.1">
+                        <page id="DopeSheet.1"/>
+                    </dock>
+                </splitter>
+                <split size="780"/>
+                <dock id="" activePageId="DAG.1" focus="true">
+                    <page id="DAG.1"/>
+                    <page id="Curve Editor.1"/>
+                </dock>
+            </splitter>
+            <split size="458"/>
+            <splitter orientation="2">
+                <split size="1026"/>
+                <dock id="" activePageId="Properties.1">
+                    <page id="Properties.1"/>
+                    <page id="uk.co.thefoundry.backgroundrenderview.1"/>
+                </dock>
+                <split size="309"/>
+                <dock id="" activePageId="uk.co.thefoundry.waveformscope.1">
+                    <page id="uk.co.thefoundry.vectorscope.1"/>
+                    <page id="uk.co.thefoundry.waveformscope.1"/>
+                    <page id="uk.co.thefoundry.histogram.1"/>
+                </dock>
+            </splitter>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name F:/Files/Work/Resources/scripts_tools/Nuke/LensFX/GQ_LensFX_1.1.nk
+ format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+ colorManagement Nuke
+ workingSpaceLUT linear
+ monitorLut sRGB
+ int8Lut sRGB
+ int16Lut sRGB
+ logLut Cineon
+ floatLut linear
+}
+Group {
+ inputs 0
+ name GQ_LensFX
+ label 35mm
+ xpos 785
+ ypos 18
+ addUserKnob {20 CTRLs}
+ addUserKnob {22 setMaster l "Set Master" T "#### GQ BZ LensFX ####\n\ndef gq_setLensMaster():\n\n    master = nuke.thisNode()\n\n    nuke.root().begin()\n    DOFNodes = \[ x for x in nuke.allNodes() if x.name().startswith(\"GQ_Lens\")]\n\n    masterCTRLs = master.name() + \".LensFX_CTRLs.\"\n    \n    print master.name()\n    print master.knob(\"masterInt\").getValue()\n\n    ## Set new Master ##\n    if master.knob(\"masterInt\").getValue() == 0:\n    \n        master.knob(\"masterInt\").setValue(1)\n        master.knob(\"fStopSlider\").clearAnimated()\n        master.knob(\"dofFocalPlane\").clearAnimated()\n        master.knob(\"clickedfStop\").clearAnimated()\n        master.knob(\"useCustomKernel\").clearAnimated()\n        \n        master.knob(\"LensCTRLGRP\").setVisible(True)\n              \n        master.knob(\"tile_color\").setValue(1317186303)\n\n        for node in DOFNodes:    \n            \n            if node != master:\n                node.knob(\"masterInt\").setValue(0)\n                            \n                node.knob(\"fStopSlider\").setExpression(masterCTRLs + \"fStopSlider\")\n                node.knob(\"dofFocalPlane\").setExpression(masterCTRLs + \"dofFocalPlane\")\n                node.knob(\"clickedfStop\").setExpression(masterCTRLs + \"clickedfStop\")\n                node.knob(\"useCustomKernel\").setExpression(masterCTRLs + \"useCustomKernel\")\n\n                node.knob(\"LensCTRLGRP\").setVisible(False)    \n                \n                node.knob(\"tile_color\").setValue(0)\n\n\n    ## Clear all Masters ##\n    elif master.knob(\"masterInt\").getValue() == 1:\n    \n        print \"master\"\n\n        for node in DOFNodes:    \n            master.knob(\"masterInt\").setValue(0)\n            master.knob(\"fStopSlider\").clearAnimated()\n            master.knob(\"dofFocalPlane\").clearAnimated()\n            master.knob(\"clickedfStop\").clearAnimated()\n            master.knob(\"useCustomKernel\").clearAnimated()\n            node.knob(\"tile_color\").setValue(0)\n            \n            master.knob(\"LensCTRLGRP\").setVisible(True)\n            \n            if node != master:\n                node.knob(\"fStopSlider\").clearAnimated()\n                node.knob(\"dofFocalPlane\").clearAnimated()\n                node.knob(\"clickedfStop\").clearAnimated()\n                node.knob(\"useCustomKernel\").clearAnimated()\n                \n                node.knob(\"LensCTRLGRP\").setVisible(True)\n                \ngq_setLensMaster()" +STARTLINE}
+ addUserKnob {22 pickLensSet l "Pick Lens Set" -STARTLINE T "import json\n\ndef GQ_GetLensSetPath():\n    try:\n        filePath = nuke.getFilename('Pick Lens Data File', '*.json')\n        \n        node = nuke.toNode(\"GQ_BZ_LensFX\")\n\n        node.begin()\n\n        ctrl = nuke.toNode(\"LensFX_CTRLs\")\n        \n        ctrl.knob(\"LensDataPath\").setValue(filePath)\n        \n    except:\n        print \"Get Lens Data Path Error\"\n\nGQ_GetLensSetPath()"}
+ addUserKnob {26 ""}
+ addUserKnob {22 PickTool l "Pick Focus Tool" -STARTLINE T "#### GQ LensFX ####\n\ndef GQ_pickTool():\n    try:\n\n        masterNode = nuke.thisNode()\n        masterNode.begin()\n        CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n\n        dofNodeString =  CTRLNode.knob(\"dofNodeList\").getValue()\n\n        #UI to pick Tool\n        p = nuke.Panel(\"GQ_LensFX\")\n\n\n        p.addEnumerationPulldown(\"tool\", dofNodeString)\n\n        #show ui\n        if not p.show():\n            return\n\n        tool = p.value(\"tool\")\n\n        nuke.root().begin()\n        DOFNodes = \[ x for x in nuke.allNodes() if x.name().startswith(\"GQ_Lens\")]\n\n        for node in DOFNodes:\n            node.knob(\"focusToolDisplay\").setValue(tool)\n            node.begin()\n                        \n            CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n            \n            CTRLNode.knob(\"defocusTool\").setValue(tool)\n    \n    except:\n        print \"Tool Pick Error\"\n\nGQ_pickTool()"}
+ addUserKnob {26 focusToolDisplay l "    Current: " -STARTLINE T zDefocus}
+ addUserKnob {22 PickLens l "Pick Lens" T "#### GQ LensFX ####\n\nimport json\n\ndef GQ_pickLens():\n\n    try:\n        #directory = r\"C:\\Users\\georgeq\\Documents\\nuke_tools\\Scripts\\BZ_LensFX\\LensData\\comLensData.json\"\n        node = nuke.toNode(\"GQ_LensFX\")\n        node.begin()\n        ctrl = nuke.toNode(\"LensFX_CTRLs\")\n\n        directory = ctrl.knob(\"LensDataPath\").value()\n\n        print directory\n\t\t\n        lensDetails = json.load(open(directory))\n    except:\n        print \"Unable to get Lens Data\"\n\n    try:\n        #UI to pick Lens\n        p = nuke.Panel(\"GQ_LensFX\")\n\n        p.addEnumerationPulldown(\"Lens\", \" \".join(lensDetails.keys()))\n\n        #show ui\n        if not p.show():\n            return\n\n        lens = p.value(\"Lens\")\n\n        #Lens Parameters\n        min = lensDetails\[lens]\[\"DOF\"]\[1]\n        max = lensDetails\[lens]\[\"DOF\"]\[0]\n        DOFLerpFunc = \"lerp(1.4, \" + str(min) + \", 22, \" + str(max) + \", fStopValue)\"\n        chromAbbLerpFunc = \"lerp(1.4, \" + str(lensDetails\[lens]\[\"ChromAbb\"]) + \", 22, 1, fStopValue)\"\n        glowLerpFunc = \"lerp(1.4, \" + str(lensDetails\[lens]\[\"glow\"]) + \", 22, 1, fStopValue)\"\n\n        blades = lensDetails\[lens]\[\"Blades\"]\n\n        #get all DOF nodes\n        nuke.root().begin()\n        DOFNodes = \[ x for x in nuke.allNodes() if x.name().startswith(\"GQ_Lens\")]\n\n        #set parameters\n        for node in DOFNodes:     \n            node.knob(\"focalLengthDisplay\").setValue(lens)\n            node.knob(\"label\").setValue(lens)\n\n            node.begin()\n            \n            CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n\n            CTRLNode.knob(\"DOF_Multiplier\").setExpression(DOFLerpFunc)\n            CTRLNode.knob(\"ChromaticAbberation\").setExpression(chromAbbLerpFunc)\n            CTRLNode.knob(\"glowValue\").setExpression(glowLerpFunc)\n\n            CTRLNode.knob(\"apertureBladesInt\").setValue(blades)\n            CTRLNode.knob(\"focalLengthInt\").setValue(int(lens\[:-2]))\n\n            node.end()\n\n    except:\n        print \"pick Lens Error\"\n\nGQ_pickLens()" +STARTLINE}
+ addUserKnob {26 focalLengthDisplay l "    Current: " -STARTLINE T 35mm}
+ addUserKnob {26 ""}
+ addUserKnob {20 LensCTRLGRP l "Lens Controls" n 1}
+ addUserKnob {41 clickedfStop l "Clicked F-Stop" T LensFX_CTRLs.clickedfStop}
+ addUserKnob {26 fstopValueDisplay l "     Current F-Stop: " -STARTLINE T 1.4}
+ addUserKnob {22 ViewFocus l "View Focus" T "#### GQ LensFX ####\n    \ndef gq_viewFocus():\n\n    try:\n        n = nuke.thisNode()\n        #n = nuke.toNode(\"GQ_LensFX\")\n\n        n.begin()\n        output = nuke.toNode(\"Output1\")\n        outputDot = nuke.toNode(\"outputDot\")\n\n        DOFNode = n.knob(\"focusToolDisplay\").value()\n        DOFSwitch = nuke.toNode(\"DOF_Switch\")\n        \n        print DOFNode\n        \n        if DOFNode == \"pgBokeh\":        \n            DOF = nuke.toNode(\"pgBokeh1\")                \n            dofValue = DOF.knob(\"outputType\").getValue()\n            if dofValue == 0:\n                DOF.knob(\"outputType\").setValue(2)\n                output.connectInput(0, DOFSwitch)\n    \n            else:\n                DOF.knob(\"outputType\").setValue(0)   \n                output.connectInput(0, outputDot)\n\n        elif DOFNode == \"zDefocus\":\n            DOF = nuke.toNode(\"LensFX_ZDefocus\")\n            dofValue = DOF.knob(\"output\").getValue()   \n            if dofValue == 0:\n                DOF.knob(\"output\").setValue(1)\n                output.connectInput(0, DOFSwitch)\n    \n            else:\n                DOF.knob(\"output\").setValue(0)   \n                output.connectInput(0, outputDot)\n\n        elif DOFNode == \"OpticalZDeofcus\":\n            DOF = nuke.toNode(\"LensFX_OpticalZDefocus\")\n            dofValue = DOF.knob(\"show_coc\").getValue()\n            print dofValue\n            if dofValue == 0:\n                DOF.knob(\"show_coc\").setValue(1)\n                output.connectInput(0, DOFSwitch)\n    \n            else:\n                DOF.knob(\"show_coc\").setValue(0)   \n                output.connectInput(0, outputDot)                \n\n\n    except:\n        print \"Error\"\n\ngq_viewFocus()" +STARTLINE}
+ addUserKnob {41 fStopSlider l F-Stop T LensFX_CTRLs.fStopSlider}
+ addUserKnob {41 dofFocalPlane l "Focus Plane" T LensFX_CTRLs.dofFocalPlane}
+ addUserKnob {41 depthSample l "Depth Pos" T LensFX_CTRLs.depthSample}
+ addUserKnob {41 useCustomKernel l "Use Custom Kernel" T LensFX_CTRLs.useCustomKernel}
+ addUserKnob {20 endGroup n -1}
+ addUserKnob {26 ""}
+ addUserKnob {41 DisableDOF l "Disable DOF" T LensFX_CTRLs.DisableDOF}
+ addUserKnob {41 disableGlow l "Disable Glow" T LensFX_CTRLs.disableGlow}
+ addUserKnob {41 DisableAbberation l "Disable Chromatic Abberation" T LensFX_CTRLs.DisableAbberation}
+ addUserKnob {20 ADV l Advanced}
+ addUserKnob {3 masterInt l INVISIBLE +INVISIBLE}
+ addUserKnob {41 pgBokehRegionSize l "PGBokeh Error Region" T LensFX_CTRLs.pgBokehRegionSize}
+ addUserKnob {41 DepthMultiplier l "Depth Multiplier" T LensFX_CTRLs.DepthMultiplier}
+ addUserKnob {41 apertureSize l "Sensor Size (mm)" T LensFX_CTRLs.apertureSize}
+ addUserKnob {26 ""}
+ addUserKnob {41 LensDataPath l "Lens Data Path" T LensFX_CTRLs.LensDataPath}
+ addUserKnob {22 AddOpticalZDefocus l "Add Optical Z Defocus" T "def addOpcitalZDOF():\n    nuke.root().begin()\n\n    #deselect all\n    for node in nuke.allNodes():\n        node.knob('selected').setValue(False)\n\n    masterDOF = nuke.toNode(\"GQ_LensFX\")\n    masterDOFCTRLS = masterDOF.name() + \".LensFX_CTRLs.\"\n\n    ## Check for OpticalZDefocus ##\n    name = \"OpticalZDefocus1\"\n    opticalZ = \"\"\n\n    for node in nuke.allNodes():\n        if name == node.knob(\"name\").value():\n            opticalZ = node\n\n        else:\n            pass\n\n    ## Add Node to GQ_LensFX ##\n    if opticalZ != \"\":\n        opticalZ.knob('selected').setValue(True)\n\n        nuke.nodeCopy(\"%clipboard%\")\n        masterDOF.begin()\n        \n        opticalNodeCheck = 0\n        \n        for node in nuke.allNodes():\n            if node.name() == \"LensFX_OpticalZDefocus\":\n                opticalNodeCheck += 1\n            else:\n                opticalNodeCheck += 0\n                \n        \n        if opticalNodeCheck == 0:\n            for node in nuke.allNodes():\n                node.knob('selected').setValue(False)\n\n            opticalZDof = nuke.nodePaste(\"%clipboard%\")\n\n            # Connect Values #\n            opticalZDof.knob(\"channels\").setValue(\"rgba\")\n            opticalZDof.knob(\"depth_unit\").setValue(1)\n            opticalZDof.knob(\"s\").setExpression(masterDOFCTRLS + \"dofFocalPlane\")\n            opticalZDof.knob(\"N\").setExpression(masterDOFCTRLS + \"fStopValue\")\n            opticalZDof.knob(\"f\").setExpression(masterDOFCTRLS + \"focalLengthInt\")\n            opticalZDof.knob(\"haperture\").setExpression(masterDOFCTRLS + \"apertureSize.w\")\n            opticalZDof.knob(\"max_size\").setValue(100)\n            opticalZDof.knob(\"min_zdepth\").setValue(1)\n            opticalZDof.knob(\"filter_type_1\").setValue(2)\n            opticalZDof.knob(\"aspect_ratio\").setValue(1)\n            opticalZDof.knob(\"name\").setValue(\"LensFX_OpticalZDefocus\")\n\n            # Connect to Graph #\n            SourceInput = nuke.toNode(\"AdjBBox1\")\n            kernelInput = nuke.toNode(\"kernelOut\")\n            DOFSwitch = nuke.toNode(\"DOF_Switch\")\n            DOFSwitchInputs = DOFSwitch.inputs()\n\n            opticalZDof.connectInput(0,SourceInput)\n            opticalZDof.connectInput(1,kernelInput)\n            DOFSwitch.connectInput(DOFSwitchInputs,opticalZDof)\n\n            # Set Position #\n            opticalZDof.knob(\"ypos\").setValue(DOFSwitch.ypos())\n            opticalZDof.knob(\"xpos\").setValue(DOFSwitch.xpos() - DOFSwitchInputs*100)\n\n\n            # Add to DOF List Knob #   \n            CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n        \n            dofNodeString =  CTRLNode.knob(\"dofNodeList\").getValue()\n\n            dofNodeList = dofNodeString.split(\" \")\n\n            if \"OpticalZDeofcus\" not in dofNodeList:\n                dofNodeList.append(\"OpticalZDeofcus\")\n        \n                dofNodeNewList = \" \".join(dofNodeList)\n        \n                CTRLNode.knob(\"dofNodeList\").setValue(dofNodeNewList)\n\n                # Add Node to Dropdown #\n\n                DOFToolDropdown = \"\\n\".join(dofNodeNewList)\n\n                CTRLNode.knob(\"defocusTool\").setValues(dofNodeList)\n                \n        else:\n            print \"Node Already Exists\"\n\n    else:\n        print \"Not Found\"\n\n\naddOpcitalZDOF()" +STARTLINE}
+ addUserKnob {22 AddpgBokeh l "Add pgBokeh" -STARTLINE T "def addPGBokeh():\n    nuke.root().begin()\n\n    #deselect all\n    for node in nuke.allNodes():\n        node.knob('selected').setValue(False)\n\n    masterDOF = nuke.toNode(\"GQ_LensFX\")\n    masterDOFCTRLS = masterDOF.name() + \".LensFX_CTRLs.\"\n\n    ## Check for pgBokeh ##\n    name = \"pgBokeh1\"\n    pgBokeh = \"\"\n\n    for node in nuke.allNodes():\n        if name == node.knob(\"name\").value():\n            pgBokeh = node\n\n        else:\n            pass\n\n    ## Add Node to GQ_LensFX ##\n    if pgBokeh != \"\":\n        pgBokeh.knob('selected').setValue(True)\n\n        nuke.nodeCopy(\"%clipboard%\")\n        masterDOF.begin()\n        \n        bokehNodeCheck = 0\n        \n        for node in nuke.allNodes():\n            if node.name() == \"LensFX_OpticalZDefocus\":\n                bokehNodeCheck += 1\n            else:\n                bokehNodeCheck += 0\n                \n        \n        if bokehNodeCheck == 0:        \n            for node in nuke.allNodes():\n                node.knob('selected').setValue(False)\n\n            pgBokeh = nuke.nodePaste(\"%clipboard%\")\n\n            # Connect Values #\n            pgBokeh.knob(\"focalPlane\").setExpression(masterDOFCTRLS + \"dofFocalPlane\")\n            pgBokeh.knob(\"focusRegionSize\").setExpression(masterDOFCTRLS + \"pgBokehRegionSize\")\n            pgBokeh.knob(\"fStop\").setExpression(masterDOFCTRLS + \"fStopValue\")\n            pgBokeh.knob(\"focalLength\").setExpression(masterDOFCTRLS + \"focalLengthInt\")\n\n            pgBokeh.knob(\"apertureWidth\").setExpression(masterDOFCTRLS + \"apertureSize.w\")\n            pgBokeh.knob(\"apertureHeight\").setExpression(masterDOFCTRLS + \"apertureSize.h\")\n\n            pgBokeh.knob(\"realWorldLens\").setValue(1)\n            pgBokeh.knob(\"filmFormat\").setValue(9)\n            pgBokeh.knob(\"kernelType\").setValue(0)\n            #pgBokeh.knob(\"kNumSides\").setExpression(masterDOFCTRLS + \"apertureBladesInt\")\n            pgBokeh.knob(\"name\").setValue(\"LensFX_PGBokeh\")\n\n            # Connect to Graph #\n            SourceInput = nuke.toNode(\"AdjBBox1\")\n            kernelInput = nuke.toNode(\"kernelOut\")\n            DOFSwitch = nuke.toNode(\"DOF_Switch\")\n            DOFSwitchInputs = DOFSwitch.inputs()\n\n            pgBokeh.connectInput(0,SourceInput)\n            pgBokeh.connectInput(1,kernelInput)\n            DOFSwitch.connectInput(DOFSwitchInputs,pgBokeh)\n\n            # Set Position #\n            pgBokeh.knob(\"ypos\").setValue(DOFSwitch.ypos())\n            pgBokeh.knob(\"xpos\").setValue(DOFSwitch.xpos() - DOFSwitchInputs*100)\n\n\n            # Add to DOF List Knob #   \n            CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n        \n            dofNodeString =  CTRLNode.knob(\"dofNodeList\").getValue()\n\n            dofNodeList = dofNodeString.split(\" \")\n\n            if \"pgBokeh\" not in dofNodeList:\n                dofNodeList.append(\"pgBokeh\")\n        \n                dofNodeNewList = \" \".join(dofNodeList)\n        \n                CTRLNode.knob(\"dofNodeList\").setValue(dofNodeNewList)\n\n                # Add Node to Dropdown #\n\n                DOFToolDropdown = \"\\n\".join(dofNodeNewList)\n\n                CTRLNode.knob(\"defocusTool\").setValues(dofNodeList)\n\n        else:\n            print \"Node Already Exists\"\n\n    else:\n        print \"Not Found\"\n\n\naddPGBokeh()"}
+ addUserKnob {22 ResetDOFNodes l "Reset DOF Nodes" T "def resetDOFTools():\n\n    masterNode = nuke.toNode(\"GQ_LensFX\")\n    CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n    zDofNode = nuke.toNode(\"LensFX_ZDefocus\")\n\n    DOFSwitch = nuke.toNode(\"DOF_Switch\")\n\n\n    # Reset Dropdown Menu #\n    CTRLNode.knob(\"defocusTool\").setValues(\[\"zDefocus\"])\n\n    # Reset DOF Node String #\n    CTRLNode.knob(\"dofNodeList\").setValue(\"zDefocus\")\n\n    # Disconnect DOF Nodes #\n    DOFSwitchInputs = DOFSwitch.inputs()\n    i = 0\n    while i < DOFSwitchInputs:\n      DOFSwitch.setInput(i, None)\n      i += 1\n    DOFSwitch.connectInput(0,zDofNode)\n\n    opticalZDof = nuke.toNode(\"LensFX_OpticalZDefocus\")\n    pgBokeh = nuke.toNode(\"LensFX_PGBokeh\")\n    try:    \n        nuke.delete(opticalZDof)\n    except:\n        pass\n\n    try:    \n        nuke.delete(pgBokeh)\n    except:\n        pass\n\nresetDOFTools()" +STARTLINE}
+}
+ StickyNote {
+  inputs 0
+  name StickyNote1
+  label "lerp(oldMin, newMin, oldMax, newMax, curve)"
+  xpos -33
+  ypos -392
+ }
+ Input {
+  inputs 0
+  name Source
+  xpos -412
+  ypos -830
+ }
+add_layer {Z Z.red Z.green Z.blue}
+ Shuffle2 {
+  fromInput1 {{0} B}
+  in1 Z
+  out1 depth
+  fromInput2 {{0} B}
+  mappings "1 Z.red 0 0 depth.Z 0 0"
+  name Shuffle2
+  xpos -412
+  ypos -747
+ }
+ Multiply {
+  channels depth
+  value {{parent.LensFX_CTRLs.DepthMultiplier}}
+  name Multiply1
+  xpos -412
+  ypos -660
+ }
+set Na08cd000 [stack 0]
+ AdjBBox {
+  numpixels {{parent.LensFX_CTRLs.addBBox}}
+  name AdjBBox1
+  xpos -412
+  ypos -536
+  disable {{parent.LensFX_CTRLs.DisableDOF}}
+ }
+set Na08ccc00 [stack 0]
+ Input {
+  inputs 0
+  name Custom_Kernel
+  xpos -867
+  ypos -669
+  number 1
+ }
+ Reformat {
+  inputs 0
+  format "256 256 0 0 256 256 1 square_256"
+  name Reformat1
+  xpos -721
+  ypos -831
+ }
+ Flare {
+  position {128 128}
+  size_mult 1.02
+  inner_color 1
+  outer_falloff 0.1
+  corners {{parent.LensFX_CTRLs.apertureBladesInt}}
+  flattening 1
+  sharpness 10
+  name Flare1
+  xpos -721
+  ypos -764
+ }
+ Shuffle {
+  alpha red
+  name Shuffle1
+  xpos -721
+  ypos -717
+ }
+ Reformat {
+  type scale
+  scale 0.2
+  name Reformat3
+  xpos -721
+  ypos -660
+ }
+ Switch {
+  inputs 2
+  which {{parent.LensFX_CTRLs.useCustomKernel}}
+  name Switch1
+  xpos -721
+  ypos -606
+ }
+ Dot {
+  name kernelOut
+  label "lens kernel"
+  xpos -687
+  ypos -552
+ }
+push $Na08ccc00
+ ZDefocus2 {
+  inputs 2
+  math depth
+  center {{parent.LensFX_CTRLs.dofFocalPlane}}
+  blur_dof false
+  size {{parent.LensFX_CTRLs.DOF_Multiplier}}
+  max_size 100
+  filter_type image
+  legacy_resize_mode false
+  show_legacy_resize_mode false
+  name LensFX_ZDefocus
+  xpos -412
+  ypos -454
+  disable {{parent.LensFX_CTRLs.DisableDOF}}
+ }
+ Switch {
+  which {{LensFX_CTRLs.defocusTool}}
+  name DOF_Switch
+  xpos -412
+  ypos -348
+ }
+ CopyBBox {
+  inputs 2
+  name CopyBBox1
+  xpos -412
+  ypos -297
+  hide_input true
+ }
+ Group {
+  name ExpoGlow
+  xpos -412
+  ypos -147
+  disable {{parent.LensFX_CTRLs.disableGlow}}
+  addUserKnob {20 ExpoGlowCTRL l CTRL}
+  addUserKnob {4 ExpoGlowOut l View M {"Result Merged" Result "Glow Source" "" "" ""}}
+  addUserKnob {41 disable_1 l "Disable Source Mask" T sourceMask.disable}
+  addUserKnob {41 disable_2 l Invert -STARTLINE T sourceMaskInvert.disable}
+  addUserKnob {26 ""}
+  addUserKnob {41 range l Threshold T expoGlowKey.range}
+  addUserKnob {26 ""}
+  addUserKnob {41 size l Size T expoGlow1.size}
+  addUserKnob {41 gamma l Gamma T gammaCTRL.gamma}
+  addUserKnob {41 value l Multiply T expoGlowMult.value}
+  addUserKnob {41 saturation l Saturation T ExpoGlowSat.saturation}
+  addUserKnob {26 ""}
+  addUserKnob {41 operation l Merge T ExpoGlowMerge.operation}
+  addUserKnob {41 disable_3 l "Disable Merge Mask" T mergeMask.disable}
+  addUserKnob {41 disable_4 l Invert -STARTLINE T mergeMaskInvert.disable}
+ }
+  Input {
+   inputs 0
+   name SourceMask
+   xpos 543
+   ypos -236
+   number 2
+  }
+  Invert {
+   name sourceMaskInvert
+   xpos 543
+   ypos -210
+  }
+  Input {
+   inputs 0
+   name Source
+   xpos 116
+   ypos -242
+  }
+set Na0718c00 [stack 0]
+  Keyer {
+   operation "luminance key"
+   range {0 64 64 64}
+   name expoGlowKey
+   xpos 344
+   ypos -248
+  }
+  Merge2 {
+   inputs 2
+   operation stencil
+   name sourceMask
+   xpos 344
+   ypos -188
+  }
+  Premult {
+   name expoGlowpremult
+   xpos 344
+   ypos -143
+  }
+set Na0718000 [stack 0]
+  Input {
+   inputs 0
+   name MergeMask
+   xpos 503
+   ypos 697
+   number 1
+  }
+  Invert {
+   name mergeMaskInvert
+   xpos 503
+   ypos 745
+  }
+push $Na0718000
+  Glow2 {
+   channels all
+   tint {{parent.expoGlow1.tint}}
+   tolerance {{parent.expoGlow1.tolerance}}
+   brightness {{parent.expoGlow1.brightness}}
+   saturation {{parent.expoGlow1.saturation}}
+   effect_only {{parent.expoGlow1.effect_only}}
+   size {{ExpoGlow.expoGlow10.size*2}}
+   name expoGlow11
+   xpos 1630
+   ypos -110
+  }
+  Multiply {
+   value {{parent.parent.LensFX_CTRLs.glowValue}}
+   name expoGlowMult
+   xpos 1630
+   ypos -59
+  }
+  set Ca0749000 [stack 0]
+push $Na0718000
+  Glow2 {
+   channels all
+   tint {{parent.expoGlow1.tint}}
+   tolerance {{parent.expoGlow1.tolerance}}
+   brightness {{parent.expoGlow1.brightness}}
+   saturation {{parent.expoGlow1.saturation}}
+   effect_only {{parent.expoGlow1.effect_only}}
+   size {{ExpoGlow.expoGlow9.size*2}}
+   name expoGlow10
+   xpos 1500
+   ypos -109
+  }
+clone $Ca0749000 {
+   xpos 1500
+   ypos -67
+   selected false
+  }
+push $Na0718000
+  Glow2 {
+   channels all
+   tint {{parent.expoGlow1.tint}}
+   tolerance {{parent.expoGlow1.tolerance}}
+   brightness {{parent.expoGlow1.brightness}}
+   saturation {{parent.expoGlow1.saturation}}
+   effect_only {{parent.expoGlow1.effect_only}}
+   size {{ExpoGlow.expoGlow8.size*2}}
+   name expoGlow9
+   xpos 1362
+   ypos -105
+  }
+clone $Ca0749000 {
+   xpos 1362
+   ypos -68
+   selected false
+  }
+push $Na0718000
+  Glow2 {
+   channels all
+   tint {{parent.expoGlow1.tint}}
+   tolerance {{parent.expoGlow1.tolerance}}
+   brightness {{parent.expoGlow1.brightness}}
+   saturation {{parent.expoGlow1.saturation}}
+   effect_only {{parent.expoGlow1.effect_only}}
+   size {{ExpoGlow.expoGlow7.size*2}}
+   name expoGlow8
+   xpos 1259
+   ypos -105
+  }
+clone $Ca0749000 {
+   xpos 1259
+   ypos -68
+   selected false
+  }
+push $Na0718000
+  Glow2 {
+   channels all
+   tint {{parent.expoGlow1.tint}}
+   tolerance {{parent.expoGlow1.tolerance}}
+   brightness {{parent.expoGlow1.brightness}}
+   saturation {{parent.expoGlow1.saturation}}
+   effect_only {{parent.expoGlow1.effect_only}}
+   size {{ExpoGlow.expoGlow6.size*2}}
+   name expoGlow7
+   xpos 1122
+   ypos -106
+  }
+clone $Ca0749000 {
+   xpos 1122
+   ypos -68
+   selected false
+  }
+push $Na0718000
+  Glow2 {
+   channels all
+   tint {{parent.expoGlow1.tint}}
+   tolerance {{parent.expoGlow1.tolerance}}
+   brightness {{parent.expoGlow1.brightness}}
+   saturation {{parent.expoGlow1.saturation}}
+   effect_only {{parent.expoGlow1.effect_only}}
+   size {{ExpoGlow.expoGlow5.size*2}}
+   name expoGlow6
+   xpos 1004
+   ypos -109
+  }
+clone $Ca0749000 {
+   xpos 1004
+   ypos -63
+   selected false
+  }
+push $Na0718000
+  Glow2 {
+   channels all
+   tint {{parent.expoGlow1.tint}}
+   tolerance {{parent.expoGlow1.tolerance}}
+   brightness {{parent.expoGlow1.brightness}}
+   saturation {{parent.expoGlow1.saturation}}
+   effect_only {{parent.expoGlow1.effect_only}}
+   size {{ExpoGlow.expoGlow4.size*2}}
+   name expoGlow5
+   xpos 872
+   ypos -110
+  }
+clone $Ca0749000 {
+   xpos 872
+   ypos -63
+   selected false
+  }
+push $Na0718000
+  Glow2 {
+   channels all
+   tint {{parent.expoGlow1.tint}}
+   tolerance {{parent.expoGlow1.tolerance}}
+   brightness {{parent.expoGlow1.brightness}}
+   saturation {{parent.expoGlow1.saturation}}
+   effect_only {{parent.expoGlow1.effect_only}}
+   size {{ExpoGlow.expoGlow3.size*2}}
+   name expoGlow4
+   xpos 730
+   ypos -111
+  }
+clone $Ca0749000 {
+   xpos 730
+   ypos -62
+   selected false
+  }
+push $Na0718000
+  Glow2 {
+   channels all
+   tint {{parent.expoGlow1.tint}}
+   tolerance {{parent.expoGlow1.tolerance}}
+   brightness {{parent.expoGlow1.brightness}}
+   saturation {{parent.expoGlow1.saturation}}
+   effect_only {{parent.expoGlow1.effect_only}}
+   size {{ExpoGlow.expoGlow2.size*2}}
+   name expoGlow3
+   xpos 598
+   ypos -108
+  }
+clone $Ca0749000 {
+   xpos 598
+   ypos -64
+   selected false
+  }
+push $Na0718000
+  Glow2 {
+   channels all
+   tint {{parent.expoGlow1.tint}}
+   tolerance {{parent.expoGlow1.tolerance}}
+   brightness {{parent.expoGlow1.brightness}}
+   saturation {{parent.expoGlow1.saturation}}
+   effect_only {{parent.expoGlow1.effect_only}}
+   size {{ExpoGlow.expoGlow1.size*2}}
+   name expoGlow2
+   xpos 483
+   ypos -109
+  }
+clone $Ca0749000 {
+   xpos 480
+   ypos -65
+   selected false
+  }
+push $Na0718000
+  Glow2 {
+   channels all
+   effect_only true
+   size 1
+   name expoGlow1
+   xpos 344
+   ypos -108
+  }
+clone $Ca0749000 {
+   xpos 344
+   ypos -66
+   selected false
+  }
+  Merge2 {
+   inputs 2
+   operation hypot
+   Achannels {rgba.red rgba.green rgba.blue -rgba.alpha}
+   name ExpoGlowMerge
+   xpos 344
+   ypos -23
+  }
+  set Ca05c9c00 [stack 0]
+clone $Ca05c9c00 {
+   inputs 2
+   xpos 344
+   ypos 53
+   selected false
+  }
+clone $Ca05c9c00 {
+   inputs 2
+   xpos 344
+   ypos 111
+   selected false
+  }
+clone $Ca05c9c00 {
+   inputs 2
+   xpos 344
+   ypos 190
+   selected false
+  }
+clone $Ca05c9c00 {
+   inputs 2
+   xpos 344
+   ypos 273
+   selected false
+  }
+clone $Ca05c9c00 {
+   inputs 2
+   xpos 344
+   ypos 340
+   selected false
+  }
+clone $Ca05c9c00 {
+   inputs 2
+   xpos 344
+   ypos 405
+   selected false
+  }
+clone $Ca05c9c00 {
+   inputs 2
+   xpos 344
+   ypos 467
+   selected false
+  }
+clone $Ca05c9c00 {
+   inputs 2
+   xpos 344
+   ypos 532
+   selected false
+  }
+clone $Ca05c9c00 {
+   inputs 2
+   xpos 344
+   ypos 581
+   selected false
+  }
+  Saturation {
+   name ExpoGlowSat
+   xpos 344
+   ypos 617
+  }
+  Grade {
+   name gammaCTRL
+   xpos 344
+   ypos 658
+  }
+  Merge2 {
+   inputs 2
+   operation stencil
+   name mergeMask
+   xpos 344
+   ypos 751
+  }
+set Na0bb8c00 [stack 0]
+push $Na0bb8c00
+push $Na0718c00
+clone $Ca05c9c00 {
+   inputs 2
+   xpos 116
+   ypos 777
+   selected true
+  }
+set Na0bb8800 [stack 0]
+  Switch {
+   inputs 3
+   which {{ExpoGlowOut}}
+   name Switch1
+   xpos 116
+   ypos 833
+  }
+  Output {
+   name Output1
+   xpos 116
+   ypos 889
+  }
+push $Na0bb8800
+  Viewer {
+   frame_range 100-346
+   fps 25
+   name Viewer1
+   xpos -148
+   ypos 890
+  }
+ end_group
+ Crop {
+  box {0 0 {width} {height}}
+  name Crop1
+  xpos -412
+  ypos -121
+ }
+ GodRays {
+  channels {rgba.red -rgba.green -rgba.blue none}
+  scale {{parent.LensFX_CTRLs.ChromaticAbberation}}
+  center {{width/2} {height/2}}
+  name GodRays1
+  xpos -412
+  ypos -19
+  disable {{parent.LensFX_CTRLs.DisableAbberation}}
+ }
+ Crop {
+  box {0 0 {width} {height}}
+  name Crop2
+  xpos -412
+  ypos 28
+ }
+ Dot {
+  name outputDot
+  xpos -378
+  ypos 89
+ }
+ Output {
+  name Output1
+  xpos -412
+  ypos 145
+ }
+push $Na08cd000
+ NoOp {
+  name LensFX_CTRLs
+  knobChanged "\nn = nuke.thisNode()\nk = nuke.thisKnob()\n\nif k.name() == \"depthSample\":\n    depthPos = k.getValue()\n\n    depthSample = n.sample('z', depthPos\[0], depthPos\[1])\n\n    n.knob(\"dofFocalPlane\").setValue(depthSample)\n\nif k.name() == \"fStopSlider\":\n    fstopValue = k.getValue()\n    clickedfStopCheck = n.knob(\"clickedfStop\").getValue()\n\n    if clickedfStopCheck == 1:\n        if fstopValue == 1.4:\n            fstopValue =  1.4\n        elif 1.4 < fstopValue <= 2:\n            fstopValue =  2\n        elif 2 < fstopValue <= 2.8:\n            fstopValue =  2.8\n        elif 2.8 < fstopValue <= 4:\n            fstopValue =  4\n        elif 4 < fstopValue <= 5.6:\n            fstopValue =  5.6\n        elif 5.6 < fstopValue <= 8:\n            fstopValue =  8\n        elif 8 < fstopValue <= 11:\n            fstopValue =  11\n        elif 11 < fstopValue <= 16:\n            fstopValue =  16\n        elif 16 < fstopValue <= 22:\n            fstopValue =  22\n\n    else:\n        pass\n            \n    #n.knob(\"fStopValue\").setValue(fstopValue)\n\n    nuke.root().begin()\n\n    DOFNodes = \[ x for x in nuke.allNodes() if x.name().startswith(\"GQ_Lens\")]    \n\n    for node in DOFNodes:     \n        node.knob(\"fstopValueDisplay\").setValue(str(fstopValue))\n            \n"
+  xpos -125
+  ypos -654
+  addUserKnob {20 User}
+  addUserKnob {6 useCustomKernel l "Use Custom Kernel" t "The Custom Kernel will NOT switch when you change lens, if you want different Custom Kernels per lens, you'll need to remember to switch manually!" +STARTLINE}
+  addUserKnob {3 DepthMultiplier l "Depth Multiplier"}
+  DepthMultiplier 10
+  addUserKnob {16 fStopValue}
+  fStopValue {{"clickedfStop == 1 ? fStopSlider == 1.4 ? 1.4 : fStopSlider <= 2 ? 2 : fStopSlider <= 2.8 ? 2.8 :  fStopSlider <= 4 ? 4 : fStopSlider <= 5.6 ? 5.6 : fStopSlider <= 8 ? 8 : fStopSlider <= 11 ? 11 : fStopSlider <= 16 ? 16 : 22 : fStopSlider"}}
+  addUserKnob {6 clickedfStop l "Clicked F-Stop" +HIDDEN +STARTLINE}
+  clickedfStop true
+  addUserKnob {14 apertureSize l Aperture R 0 100}
+  apertureSize {22 16}
+  addUserKnob {7 pgBokehRegionSize l "Region Size" R 1 256}
+  pgBokehRegionSize 50
+  addUserKnob {4 defocusTool l "Defocus Tool" M {zDefocus}}
+  addUserKnob {3 focalLengthInt l "Focal Length"}
+  focalLengthInt 35
+  addUserKnob {7 addBBox l "Expand BBox" R 0 50}
+  addBBox 50
+  addUserKnob {6 DisableDOF l "Disable DOF" +STARTLINE}
+  addUserKnob {6 disableGlow l "Disable Glow" +STARTLINE}
+  addUserKnob {6 DisableAbberation l "Disable Chromatic Abberation" +STARTLINE}
+  addUserKnob {12 depthSample l "Depth Pos"}
+  addUserKnob {7 dofFocalPlane l "Focus Plane" +HIDDEN R 0 512}
+  addUserKnob {7 ChromaticAbberation l "Chrom Abb Value" R 0 2}
+  ChromaticAbberation {{"lerp(1.4, 0.996, 22, 1, fStopValue)"}}
+  addUserKnob {7 glowValue l "Glow Value" R 0 10}
+  glowValue {{"lerp(1.4, 3, 22, 1, fStopValue)"}}
+  addUserKnob {3 apertureBladesInt l "Aperture Blades"}
+  apertureBladesInt 8
+  addUserKnob {7 DOF_Multiplier l "Dof Multiplier" R 1 256}
+  DOF_Multiplier {{"lerp(1.4, 10, 22, 0.5, fStopValue)"}}
+  addUserKnob {7 fStopSlider l F-Stop +HIDDEN R 1.4 22}
+  fStopSlider 1.4
+  addUserKnob {11 DepthChannelPicker}
+  DepthChannelPicker {rgba.red -rgba.green rgba.blue rgba.alpha}
+  addUserKnob {1 dofNodeList l "DOF Nodes"}
+  dofNodeList zDefocus
+  addUserKnob {2 LensDataPath l "Lens Data Path"}
+ }
+end_group
