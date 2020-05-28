@@ -1,0 +1,5 @@
+{"24mm": {"glow": 10, "DOF": [0.2, 5], "ChromAbb": 1.003, "Blades": 5},
+"50mm": {"glow": 5, "DOF": [2, 20], "ChromAbb": 0.998, "Blades": 5}, 
+"35mm": {"glow": 3, "DOF": [0.5, 10], "ChromAbb": 0.996, "Blades": 8}, 
+"105mm": {"glow": 6, "DOF": [6, 68], "ChromAbb": 0.997, "Blades": 6}, 
+"85mm": {"glow": 4, "DOF": [4, 55], "ChromAbb": 0.999, "Blades": 7}}
