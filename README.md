@@ -10,6 +10,12 @@ Jump to Documentation:
 
 ---
 
+## LensFX_GQ
+
+This is my all one tool for DOF, it is able to bring together PGBokeh, Optical Z Defocus and Z Defocus into one tool with shared, real world lens controls.
+
+![Add 3rd Party DOF Tools](./documentationGifs/addOpticalZdefocus.gif)
+
 ## LightWrap_GQ
 
 This is my own custom light wrap node, I find the default node frustrating as if often messes with other channels if used directly in the main pipe. My node only affects the RGB channels so you no longer have to worry about that.
