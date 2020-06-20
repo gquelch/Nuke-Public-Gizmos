@@ -4,15 +4,20 @@ My freely available scripts and tools for Nuke
 
 Jump to Documentation:
 
+[LensFX_GQ](https://github.com/gquelch/Nuke-Public-Gizmos#lensfx_gq)
+
 [LightWrap_GQ](https://github.com/gquelch/Nuke-Public-Gizmos#lightwrap_gq)
 
-[ColourChecker_GQ](https://github.com/gquelch/Nuke-Public-Gizmos/blob/master/README.md#colourchecker_gq)
+[ColourChecker_GQ](https://github.com/gquelch/Nuke-Public-Gizmos#colourchecker_gq)
 
 ---
 
 ## LensFX_GQ
 
-This is my all one tool for DOF, it is able to bring together PGBokeh, Optical Z Defocus and Z Defocus into one tool with shared, real world lens controls.
+This is my all one tool for DOF, it is able to bring together PGBokeh, Optical Z Defocus and Z Defocus into one tool with shared, real world lens controls. This allows you to swap between different tools, which sometimes work differently in different circumstances
+
+#### Adding 3rd Party Tools
+In order to add [Optical Z Defocus](https://gist.github.com/jedypod/50a3b68f9b5bbe487e1a) or [PGBokeh](https://peregrinelabs.com/bokeh/) you need to have one present in the node graph for LensFX to pick up, after that you simply need to press the appropriate button in the "Advanced tab" and the node will be integrated, and should be available in the "Pick Focus Tool" menu
 
 ![Add 3rd Party DOF Tools](./documentationGifs/addOpticalZdefocus.gif)
 
