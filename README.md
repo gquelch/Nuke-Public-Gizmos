@@ -21,11 +21,11 @@ Z Defocus is the only tool included by default, and does not use a physical lens
 #### Lens Sets
 
 The gizmo makes use of "Lens Sets" this is to emulate having a limited set of lenses as you would on a VFX shoot, which all have their own unique qualitues. Each lens can be customised with:
-..* Focal Length
-..* Glow
-..* DOF Strength (only applicable for zDefocus, OpticalZDefocus and PGBokeh will use real world simulation)
-..* Chromatic Aberration
-..* Aperture Blades
+* Focal Length
+* Glow
+* DOF Strength (only applicable for zDefocus, OpticalZDefocus and PGBokeh will use real world simulation)
+* Chromatic Aberration
+* Aperture Blades
 
 There is an example .json file provided on Github, which you can use as a starting point for customising your lenses.
 
