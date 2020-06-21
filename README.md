@@ -36,7 +36,7 @@ In order to add [Optical Z Defocus](https://gist.github.com/jedypod/50a3b68f9b5b
 
 Once you have done this you can save the file and use it freely and add it to your pipeline.
 
-![Add 3rd Party DOF Tools](./documentationGifs/addOpticalZdefocus.gif)
+![Add 3rd Party DOF Tools](./documentationAssets/addOpticalZdefocus.gif)
 
 ## LightWrap_GQ
 
