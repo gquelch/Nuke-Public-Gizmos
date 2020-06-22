@@ -17,19 +17,22 @@ Jump to Documentation:
 This is my all one tool for DOF, it is able to bring together PGBokeh, Optical Z Defocus and Z Defocus into one tool with shared, real world lens controls. This allows you to swap between different tools, which sometimes work differently in different circumstances
 
 Z Defocus is the only tool included by default, and does not use a physical lens simulation, you are able to customise the min and max blur of each lens using a "Lens Set", and the aperture slider will blend between these values.
-
+<br/><br/>
 #### Lens Sets
 
 The gizmo makes use of "Lens Sets" this is to emulate having a limited set of lenses as you would on a VFX shoot, which all have their own unique qualitues. Each lens can be customised with:
-* Focal Length
-* Glow
-* DOF Strength (only applicable for zDefocus, OpticalZDefocus and PGBokeh will use real world simulation)
-* Chromatic Aberration
-* Aperture Blades
 
+- Focal Length
+- Glow
+- DOF Strength (only applicable for zDefocus, OpticalZDefocus and PGBokeh will use real world simulation)
+- Chromatic Aberration
+- Aperture Blades
+
+<br/><br/>
 There is an example .json file provided on Github, which you can use as a starting point for customising your lenses.
 
 In order for the gizmo to work, you must have one of these pathed into the "Lens Data Path" knob in "Advanced"
+<br/><br/>
 
 #### Adding 3rd Party Tools
 In order to add [Optical Z Defocus](https://gist.github.com/jedypod/50a3b68f9b5bbe487e1a) or [PGBokeh](https://peregrinelabs.com/bokeh/) you need to have one present in the node graph for LensFX to pick up, after that you simply need to press the appropriate button in the "Advanced tab" and the node will be integrated, and should be available in the "Pick Focus Tool" menu.
@@ -38,11 +41,16 @@ Once you have done this you can save the file and use it freely and add it to yo
 
 ![Add 3rd Party DOF Tools](./documentationAssets/addOpticalZdefocus.gif)
 
+<br/><br/>
+
 ## LightWrap_GQ
 
 This is my own custom light wrap node, I find the default node frustrating as if often messes with other channels if used directly in the main pipe. My node only affects the RGB channels so you no longer have to worry about that.
 
-There are also two types of blur, a standard soft gausian, and an exponential blur, this allows you to get a really nice falloff in the light wrap, as well as the softer colour bleed you can get with the standard lightwrap node
+
+There are also two types of blur, a standard soft gausian, and an exponential blur, this allows you to get a really nice falloff in the light wrap, as well as the softer colour bleed you can get with the standard lightwrap node  
+
+<br/><br/>
 
 ## ColourChecker_GQ
 
