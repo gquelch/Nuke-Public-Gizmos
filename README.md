@@ -13,14 +13,18 @@ Jump to Documentation:
 ---
 
 ## LensFX_GQ
+This is my all one tool for DOF, it is able to bring together PGBokeh, OpticalZDefocus and ZDefocus into one tool with shared, real world lens controls. This allows you to swap between different tools on the fly. The tool uses digital "Lens Sets" which allow you to customise focal lengths and optical qualities like chromatic aberration and blur, all of which are tied to the aperture of the lens, the wider you open the lens, the stronger the effects.
 
-This is my all one tool for DOF, it is able to bring together PGBokeh, Optical Z Defocus and Z Defocus into one tool with shared, real world lens controls. This allows you to swap between different tools, which sometimes work differently in different circumstances
+![Add 3rd Party DOF Tools](./documentationAssets/demo.gif)
 
-Z Defocus is the only tool included by default, and does not use a physical lens simulation, you are able to customise the min and max blur of each lens using a "Lens Set", and the aperture slider will blend between these values.
-<br/><br/>
-#### Lens Sets
+ZDefocus is included by default, but does not support physical lens simulation, you are able to customise the min and max blur of each lens using the lens set, and the aperture slider will blend between these values. pgBokeh and Optical Z Defocus both support real world simulation, and the strength of the blur is driven solely by the Aperture and sensor size values.
 
-The gizmo makes use of "Lens Sets" this is to emulate having a limited set of lenses as you would on a VFX shoot, which all have their own unique qualitues. Each lens can be customised with:
+![Add 3rd Party DOF Tools](./documentationAssets/swappingLens.gif)
+
+
+### Lens Sets
+
+The gizmo makes use of "Lens Sets" this is to emulate having a limited set of lenses as you would on a Live Action shoot, each with their own unique qualities. Each lens can be customised with:
 
 - Focal Length
 - Glow
@@ -28,18 +32,27 @@ The gizmo makes use of "Lens Sets" this is to emulate having a limited set of le
 - Chromatic Aberration
 - Aperture Blades
 
-<br/><br/>
-There is an example .json file provided on Github, which you can use as a starting point for customising your lenses.
+You can have any number of lenses in a set, and each can be totally customised, this gives them all a slightly different feel, there is an example .json file provided on Github, which you can use as a starting point. **You must have one loaded into the "Lens Data Path" in "Advanced" for the tool to function.**
+![Add 3rd Party DOF Tools](./documentationAssets/opticalFXPerLens.gif)
 
-In order for the gizmo to work, you must have one of these pathed into the "Lens Data Path" knob in "Advanced"
-<br/><br/>
+The optical qualities, currently chromatic aberration and glow, are tied to the aperture value, like a real lens, these are stronger when the aperture is open wider, see the comparison below for an example.
 
-#### Adding 3rd Party Tools
-In order to add [Optical Z Defocus](https://gist.github.com/jedypod/50a3b68f9b5bbe487e1a) or [PGBokeh](https://peregrinelabs.com/bokeh/) you need to have one present in the node graph for LensFX to pick up, after that you simply need to press the appropriate button in the "Advanced tab" and the node will be integrated, and should be available in the "Pick Focus Tool" menu.
+![Add 3rd Party DOF Tools](./documentationAssets/Comparison.gif)
+
+
+### Adding 3rd Party Tools
+
+In order to add [OpticalZDefocus](https://gist.github.com/jedypod/50a3b68f9b5bbe487e1a) or [PGBokeh](https://peregrinelabs.com/bokeh/) you need to have one present in the node graph for LensFX to pick up, after that you simply need to press the appropriate button in the "Advanced tab" and the node will be integrated, and should be available in the "Pick Focus Tool" menu.
 
 Once you have done this you can save the file and use it freely and add it to your pipeline.
 
 ![Add 3rd Party DOF Tools](./documentationAssets/addOpticalZdefocus.gif)
+
+### Master + Child
+
+Group nodes in Nuke can't be cloned but sometimes you need multiple DOF nodes, so I included a "Set Master" function. Pressing the button will make the current node the scripts master, it will turn blue, all other LensFX nodes in the script will become children, and their controls will be locked and get their values from the master. 
+
+If you want to break this connection, you simply hit the "Set Master" button again, which will clear all children. If you press this button on a child node, it will become the new master.
 
 <br/><br/>
 
