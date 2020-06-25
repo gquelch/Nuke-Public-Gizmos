@@ -48,7 +48,7 @@ define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
 }
 Root {
  inputs 0
- name F:/Files/Work/Resources/scripts_tools/Nuke/LensFX/LensFX_GQ_1.1.nk
+ name F:/Files/Work/Resources/scripts_tools/Nuke/LensFX/LensFX_GQ.nk
  format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
  proxy_type scale
  proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
@@ -64,8 +64,8 @@ Group {
  inputs 0
  name GQ_LensFX
  label 35mm
- xpos 759
- ypos -16
+ xpos 753
+ ypos -67
  addUserKnob {20 CTRLs}
  addUserKnob {22 setMaster l "Set Master" T "#### GQ LensFX ####\n\nHiddenChildKnobs = \[\"clickedfStop\",\"fStopSlider\",\"dofFocalPlane\",\"depthSample\",\"useCustomKernel\"]\n\ndef gq_setLensMaster():\n\n    master = nuke.thisNode()\n\n    nuke.root().begin()\n    DOFNodes = \[ x for x in nuke.allNodes() if x.name().startswith(\"GQ_Lens\")]\n\n    masterCTRLs = master.name() + \".LensFX_CTRLs.\"\n    \n    print master.name()\n    print master.knob(\"masterInt\").getValue()\n\n    ## Set new Master ##\n    if master.knob(\"masterInt\").getValue() == 0:\n    \n        master.knob(\"masterInt\").setValue(1)\n        master.knob(\"fStopSlider\").clearAnimated()\n        master.knob(\"dofFocalPlane\").clearAnimated()\n        master.knob(\"clickedfStop\").clearAnimated()\n        master.knob(\"useCustomKernel\").clearAnimated()\n        \n        for ctrlKnob in HiddenChildKnobs:\n            childKnob = master.knob(ctrlKnob)\n            childKnob.setEnabled(True)\n        #master.knob(\"LensCTRLGRP\").setVisible(True)\n              \n        master.knob(\"tile_color\").setValue(1317186303)\n\n        for node in DOFNodes:    \n            \n            if node != master:\n                node.knob(\"masterInt\").setValue(0)\n                            \n                node.knob(\"fStopSlider\").setExpression(masterCTRLs + \"fStopSlider\")\n                node.knob(\"dofFocalPlane\").setExpression(masterCTRLs + \"dofFocalPlane\")\n                node.knob(\"clickedfStop\").setExpression(masterCTRLs + \"clickedfStop\")\n                node.knob(\"useCustomKernel\").setExpression(masterCTRLs + \"useCustomKernel\")\n\n                for ctrlKnob in HiddenChildKnobs:\n                    childKnob = node.knob(ctrlKnob)\n                    childKnob.setEnabled(False)\n                #node.knob(\"LensCTRLGRP\").setVisible(False)    \n                \n                node.knob(\"tile_color\").setValue(0)\n\n\n    ## Clear all Masters ##\n    elif master.knob(\"masterInt\").getValue() == 1:\n    \n        print \"master\"\n\n        for node in DOFNodes:    \n            master.knob(\"masterInt\").setValue(0)\n            master.knob(\"fStopSlider\").clearAnimated()\n            master.knob(\"dofFocalPlane\").clearAnimated()\n            master.knob(\"clickedfStop\").clearAnimated()\n            master.knob(\"useCustomKernel\").clearAnimated()\n            node.knob(\"tile_color\").setValue(0)\n\n            for ctrlKnob in HiddenChildKnobs:\n                childKnob = master.knob(ctrlKnob)\n                childKnob.setEnabled(True)            \n            #master.knob(\"LensCTRLGRP\").setVisible(True)\n            \n            if node != master:\n                node.knob(\"fStopSlider\").clearAnimated()\n                node.knob(\"dofFocalPlane\").clearAnimated()\n                node.knob(\"clickedfStop\").clearAnimated()\n                node.knob(\"useCustomKernel\").clearAnimated()\n\n                for ctrlKnob in HiddenChildKnobs:\n                    childKnob = node.knob(ctrlKnob)\n                    childKnob.setEnabled(True)                 \n                #node.knob(\"LensCTRLGRP\").setVisible(True)\n                \ngq_setLensMaster()" +STARTLINE}
  addUserKnob {22 pickLensSet l "Pick Lens Set" -STARTLINE +INVISIBLE T "import json\n\ndef GQ_GetLensSetPath():\n    try:\n        filePath = nuke.getFilename('Pick Lens Data File', '*.json')\n        \n        node = nuke.toNode(\"GQ_BZ_LensFX\")\n\n        node.begin()\n\n        ctrl = nuke.toNode(\"LensFX_CTRLs\")\n        \n        ctrl.knob(\"LensDataPath\").setValue(filePath)\n        \n    except:\n        print \"Get Lens Data Path Error\"\n\nGQ_GetLensSetPath()"}
@@ -77,7 +77,7 @@ Group {
  addUserKnob {26 _1 l "Lens Controls"}
  addUserKnob {41 clickedfStop l "Clicked F-Stop" T LensFX_CTRLs.clickedfStop}
  addUserKnob {26 fstopValueDisplay l "     Current F-Stop: " -STARTLINE T 1.4}
- addUserKnob {22 ViewFocus l "View Focus" T "#### GQ LensFX ####\n    \ndef gq_viewFocus():\n\n    try:\n        n = nuke.thisNode()\n        #n = nuke.toNode(\"GQ_LensFX\")\n\n        n.begin()\n        output = nuke.toNode(\"Output1\")\n        outputDot = nuke.toNode(\"outputDot\")\n\n        DOFNode = n.knob(\"focusToolDisplay\").value()\n        DOFSwitch = nuke.toNode(\"DOF_Switch\")\n        \n        print DOFNode\n        \n        if DOFNode == \"pgBokeh\":        \n            DOF = nuke.toNode(\"pgBokeh1\")                \n            dofValue = DOF.knob(\"outputType\").getValue()\n            if dofValue == 0:\n                DOF.knob(\"outputType\").setValue(2)\n                output.connectInput(0, DOFSwitch)\n    \n            else:\n                DOF.knob(\"outputType\").setValue(0)   \n                output.connectInput(0, outputDot)\n\n        elif DOFNode == \"zDefocus\":\n            DOF = nuke.toNode(\"LensFX_ZDefocus\")\n            dofValue = DOF.knob(\"output\").getValue()   \n            if dofValue == 0:\n                DOF.knob(\"output\").setValue(1)\n                output.connectInput(0, DOFSwitch)\n    \n            else:\n                DOF.knob(\"output\").setValue(0)   \n                output.connectInput(0, outputDot)\n\n        elif DOFNode == \"OpticalZDeofcus\":\n            DOF = nuke.toNode(\"LensFX_OpticalZDefocus\")\n            dofValue = DOF.knob(\"show_coc\").getValue()\n            print dofValue\n            if dofValue == 0:\n                DOF.knob(\"show_coc\").setValue(1)\n                output.connectInput(0, DOFSwitch)\n    \n            else:\n                DOF.knob(\"show_coc\").setValue(0)   \n                output.connectInput(0, outputDot)                \n\n\n    except:\n        print \"Error\"\n\ngq_viewFocus()" +STARTLINE}
+ addUserKnob {22 ViewFocus l "View Focus" T "#### GQ LensFX ####\n    \ndef gq_viewFocus():\n\n    try:\n        n = nuke.thisNode()\n        #n = nuke.toNode(\"GQ_LensFX\")\n\n        n.begin()\n        output = nuke.toNode(\"Output1\")\n        outputDot = nuke.toNode(\"outputDot\")\n\n        DOFNode = n.knob(\"focusToolDisplay\").value()\n        DOFSwitch = nuke.toNode(\"DOF_Switch\")\n        \n        print DOFNode\n        \n        if DOFNode == \"pgBokeh\":        \n            DOF = nuke.toNode(\"LensFX_PGBokeh\")                \n            dofValue = DOF.knob(\"outputType\").getValue()\n            if dofValue == 0:\n                DOF.knob(\"outputType\").setValue(2)\n                output.connectInput(0, DOFSwitch)\n    \n            else:\n                DOF.knob(\"outputType\").setValue(0)   \n                output.connectInput(0, outputDot)\n\n        elif DOFNode == \"zDefocus\":\n            DOF = nuke.toNode(\"LensFX_ZDefocus\")\n            dofValue = DOF.knob(\"output\").getValue()   \n            if dofValue == 0:\n                DOF.knob(\"output\").setValue(1)\n                output.connectInput(0, DOFSwitch)\n    \n            else:\n                DOF.knob(\"output\").setValue(0)   \n                output.connectInput(0, outputDot)\n\n\n        elif DOFNode == \"OpticalZDefocus\":\n            DOF = nuke.toNode(\"LensFX_OpticalZDefocus\")\n            dofValue = DOF.knob(\"show_coc\").getValue()\n            \n            if dofValue == 0:\n                DOF.knob(\"show_coc\").setValue(1)\n                output.connectInput(0, DOFSwitch)\n    \n            else:\n                DOF.knob(\"show_coc\").setValue(0)   \n                output.connectInput(0, outputDot)                \n\n\n    except:\n        print \"Error\"\n\ngq_viewFocus()" +STARTLINE}
  addUserKnob {41 fStopSlider l F-Stop T LensFX_CTRLs.fStopSlider}
  addUserKnob {41 dofFocalPlane l "Focus Plane" T LensFX_CTRLs.dofFocalPlane}
  addUserKnob {41 depthSample l "Depth Pos" T LensFX_CTRLs.depthSample}
@@ -86,6 +86,8 @@ Group {
  addUserKnob {41 DisableDOF l "Disable DOF" T LensFX_CTRLs.DisableDOF}
  addUserKnob {41 disableGlow l "Disable Glow" T LensFX_CTRLs.disableGlow}
  addUserKnob {41 DisableAbberation l "Disable Chromatic Abberation" T LensFX_CTRLs.DisableAbberation}
+ addUserKnob {26 ""}
+ addUserKnob {26 LensFX_v1 l "" +STARTLINE T "LensFX - v1.0\nGeorge Quelch 2020\ngquelch.github.io"}
  addUserKnob {20 ADV l Advanced}
  addUserKnob {3 masterInt l INVISIBLE +INVISIBLE}
  addUserKnob {41 pgBokehRegionSize l "PGBokeh Error Region" T LensFX_CTRLs.pgBokehRegionSize}
@@ -93,8 +95,8 @@ Group {
  addUserKnob {41 apertureSize l "Sensor Size (mm)" T LensFX_CTRLs.apertureSize}
  addUserKnob {26 ""}
  addUserKnob {41 LensDataPath l "Lens Data Path" T LensFX_CTRLs.LensDataPath}
- addUserKnob {22 AddOpticalZDefocus l "Add Optical Z Defocus" T "def addOpcitalZDOF():\n    nuke.root().begin()\n\n    #deselect all\n    for node in nuke.allNodes():\n        node.knob('selected').setValue(False)\n\n    masterDOF = nuke.toNode(\"GQ_LensFX\")\n    masterDOFCTRLS = masterDOF.name() + \".LensFX_CTRLs.\"\n    \n    print masterDOF\n\n    ## Check for OpticalZDefocus ##\n    name = \"OpticalZDefocus\"\n    opticalZ = \"\"\n\n    for node in nuke.allNodes():\n        if name == node.knob(\"name\").value():\n            opticalZ = node\n\n        else:\n            pass\n\n    ## Add Node to GQ_LensFX ##\n    if opticalZ != \"\":\n        opticalZ.knob('selected').setValue(True)\n\n        nuke.nodeCopy(\"%clipboard%\")\n        masterDOF.begin()\n        \n        opticalNodeCheck = 0\n        \n        for node in nuke.allNodes():\n            if node.name() == \"LensFX_OpticalZDefocus\":\n                opticalNodeCheck += 1\n            else:\n                opticalNodeCheck += 0\n                \n        \n        if opticalNodeCheck == 0:\n            for node in nuke.allNodes():\n                node.knob('selected').setValue(False)\n\n            opticalZDof = nuke.nodePaste(\"%clipboard%\")\n\n            # Connect Values #\n            opticalZDof.knob(\"channels\").setValue(\"rgba\")\n            opticalZDof.knob(\"depth_unit\").setValue(1)\n            opticalZDof.knob(\"s\").setExpression(masterDOFCTRLS + \"dofFocalPlane\")\n            opticalZDof.knob(\"N\").setExpression(masterDOFCTRLS + \"fStopValue\")\n            opticalZDof.knob(\"f\").setExpression(masterDOFCTRLS + \"focalLengthInt\")\n            opticalZDof.knob(\"haperture\").setExpression(masterDOFCTRLS + \"apertureSize.w\")\n            opticalZDof.knob(\"max_size\").setValue(100)\n            opticalZDof.knob(\"min_zdepth\").setValue(1)\n            opticalZDof.knob(\"filter_type_1\").setValue(2)\n            opticalZDof.knob(\"aspect_ratio\").setValue(1)\n            opticalZDof.knob(\"name\").setValue(\"LensFX_OpticalZDefocus\")\n\n            # Connect to Graph #\n            SourceInput = nuke.toNode(\"AdjBBox1\")\n            kernelInput = nuke.toNode(\"kernelOut\")\n            DOFSwitch = nuke.toNode(\"DOF_Switch\")\n            DOFSwitchInputs = DOFSwitch.inputs()\n\n            opticalZDof.connectInput(0,SourceInput)\n            opticalZDof.connectInput(1,kernelInput)\n            DOFSwitch.connectInput(DOFSwitchInputs,opticalZDof)\n\n            # Set Position #\n            opticalZDof.knob(\"ypos\").setValue(DOFSwitch.ypos())\n            opticalZDof.knob(\"xpos\").setValue(DOFSwitch.xpos() - DOFSwitchInputs*100)\n\n\n            # Add to DOF List Knob #   \n            CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n        \n            dofNodeString =  CTRLNode.knob(\"dofNodeList\").getValue()\n\n            dofNodeList = dofNodeString.split(\" \")\n\n            if \"OpticalZDeofcus\" not in dofNodeList:\n                dofNodeList.append(\"OpticalZDeofcus\")\n        \n                dofNodeNewList = \" \".join(dofNodeList)\n        \n                CTRLNode.knob(\"dofNodeList\").setValue(dofNodeNewList)\n\n                # Add Node to Dropdown #\n\n                DOFToolDropdown = \"\\n\".join(dofNodeNewList)\n\n                CTRLNode.knob(\"defocusTool\").setValues(dofNodeList)\n                \n        else:\n            print \"Node Already Exists\"\n\n    else:\n        print \"Not Found\"\n\n\naddOpcitalZDOF()" +STARTLINE}
- addUserKnob {22 AddpgBokeh l "Add pgBokeh" -STARTLINE T "def addPGBokeh():\n    nuke.root().begin()\n\n    #deselect all\n    for node in nuke.allNodes():\n        node.knob('selected').setValue(False)\n\n    masterDOF = nuke.toNode(\"GQ_LensFX\")\n    masterDOFCTRLS = masterDOF.name() + \".LensFX_CTRLs.\"\n\n    ## Check for pgBokeh ##\n    name = \"pgBokeh\"\n    pgBokeh = \"\"\n\n    for node in nuke.allNodes():\n        if name == node.knob(\"name\").value():\n            pgBokeh = node\n\n        else:\n            pass\n\n    ## Add Node to GQ_LensFX ##\n    if pgBokeh != \"\":\n        pgBokeh.knob('selected').setValue(True)\n\n        nuke.nodeCopy(\"%clipboard%\")\n        masterDOF.begin()\n        \n        bokehNodeCheck = 0\n        \n        for node in nuke.allNodes():\n            if node.name() == \"LensFX_OpticalZDefocus\":\n                bokehNodeCheck += 1\n            else:\n                bokehNodeCheck += 0\n                \n        \n        if bokehNodeCheck == 0:        \n            for node in nuke.allNodes():\n                node.knob('selected').setValue(False)\n\n            pgBokeh = nuke.nodePaste(\"%clipboard%\")\n\n            # Connect Values #\n            pgBokeh.knob(\"focalPlane\").setExpression(masterDOFCTRLS + \"dofFocalPlane\")\n            pgBokeh.knob(\"focusRegionSize\").setExpression(masterDOFCTRLS + \"pgBokehRegionSize\")\n            pgBokeh.knob(\"fStop\").setExpression(masterDOFCTRLS + \"fStopValue\")\n            pgBokeh.knob(\"focalLength\").setExpression(masterDOFCTRLS + \"focalLengthInt\")\n\n            pgBokeh.knob(\"apertureWidth\").setExpression(masterDOFCTRLS + \"apertureSize.w\")\n            pgBokeh.knob(\"apertureHeight\").setExpression(masterDOFCTRLS + \"apertureSize.h\")\n\n            pgBokeh.knob(\"realWorldLens\").setValue(1)\n            pgBokeh.knob(\"filmFormat\").setValue(9)\n            pgBokeh.knob(\"kernelType\").setValue(0)\n            #pgBokeh.knob(\"kNumSides\").setExpression(masterDOFCTRLS + \"apertureBladesInt\")\n            pgBokeh.knob(\"name\").setValue(\"LensFX_PGBokeh\")\n\n            # Connect to Graph #\n            SourceInput = nuke.toNode(\"AdjBBox1\")\n            kernelInput = nuke.toNode(\"kernelOut\")\n            DOFSwitch = nuke.toNode(\"DOF_Switch\")\n            DOFSwitchInputs = DOFSwitch.inputs()\n\n            pgBokeh.connectInput(0,SourceInput)\n            pgBokeh.connectInput(1,kernelInput)\n            DOFSwitch.connectInput(DOFSwitchInputs,pgBokeh)\n\n            # Set Position #\n            pgBokeh.knob(\"ypos\").setValue(DOFSwitch.ypos())\n            pgBokeh.knob(\"xpos\").setValue(DOFSwitch.xpos() - DOFSwitchInputs*100)\n\n\n            # Add to DOF List Knob #   \n            CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n        \n            dofNodeString =  CTRLNode.knob(\"dofNodeList\").getValue()\n\n            dofNodeList = dofNodeString.split(\" \")\n\n            if \"pgBokeh\" not in dofNodeList:\n                dofNodeList.append(\"pgBokeh\")\n        \n                dofNodeNewList = \" \".join(dofNodeList)\n        \n                CTRLNode.knob(\"dofNodeList\").setValue(dofNodeNewList)\n\n                # Add Node to Dropdown #\n\n                DOFToolDropdown = \"\\n\".join(dofNodeNewList)\n\n                CTRLNode.knob(\"defocusTool\").setValues(dofNodeList)\n\n        else:\n            print \"Node Already Exists\"\n\n    else:\n        print \"Not Found\"\n\n\naddPGBokeh()"}
+ addUserKnob {22 AddOpticalZDefocus l "Add Optical Z Defocus" T "def addOpcitalZDOF():\n    nuke.root().begin()\n\n    #deselect all\n    for node in nuke.allNodes():\n        node.knob('selected').setValue(False)\n\n    masterDOF = nuke.toNode(\"GQ_LensFX\")\n    masterDOFCTRLS = masterDOF.name() + \".LensFX_CTRLs.\"\n    \n    print masterDOF\n\n    ## Check for OpticalZDefocus ##\n    name = \"OpticalZDefocus\"\n    opticalZ = \"\"\n\n    for node in nuke.allNodes():\n        if name == node.knob(\"name\").value():\n            opticalZ = node\n\n        else:\n            pass\n\n    ## Add Node to GQ_LensFX ##\n    if opticalZ != \"\":\n        opticalZ.knob('selected').setValue(True)\n\n        nuke.nodeCopy(\"%clipboard%\")\n        masterDOF.begin()\n        \n        opticalNodeCheck = 0\n        \n        for node in nuke.allNodes():\n            if node.name() == \"LensFX_OpticalZDefocus\":\n                opticalNodeCheck += 1\n            else:\n                opticalNodeCheck += 0\n                \n        \n        if opticalNodeCheck == 0:\n            for node in nuke.allNodes():\n                node.knob('selected').setValue(False)\n\n            opticalZDof = nuke.nodePaste(\"%clipboard%\")\n\n            # Connect Values #\n            opticalZDof.knob(\"channels\").setValue(\"rgba\")\n            opticalZDof.knob(\"depth_unit\").setValue(1)\n            opticalZDof.knob(\"s\").setExpression(masterDOFCTRLS + \"dofFocalPlane\")\n            opticalZDof.knob(\"N\").setExpression(masterDOFCTRLS + \"fStopValue\")\n            opticalZDof.knob(\"f\").setExpression(masterDOFCTRLS + \"focalLengthInt\")\n            opticalZDof.knob(\"haperture\").setExpression(masterDOFCTRLS + \"apertureSize.w\")\n            opticalZDof.knob(\"max_size\").setValue(100)\n            opticalZDof.knob(\"min_zdepth\").setValue(1)\n            opticalZDof.knob(\"filter_type_1\").setValue(2)\n            opticalZDof.knob(\"aspect_ratio\").setValue(1)\n            opticalZDof.knob(\"name\").setValue(\"LensFX_OpticalZDefocus\")\n            opticalZDof.knob(\"disable\").setExpression(masterDOFCTRLS + \"DisableDOF\")\n\n            # Connect to Graph #\n            SourceInput = nuke.toNode(\"AdjBBox1\")\n            kernelInput = nuke.toNode(\"kernelOut\")\n            DOFSwitch = nuke.toNode(\"DOF_Switch\")\n            DOFSwitchInputs = DOFSwitch.inputs()\n\n            opticalZDof.connectInput(0,SourceInput)\n            opticalZDof.connectInput(1,kernelInput)\n            DOFSwitch.connectInput(DOFSwitchInputs,opticalZDof)\n\n            # Set Position #\n            opticalZDof.knob(\"ypos\").setValue(DOFSwitch.ypos())\n            opticalZDof.knob(\"xpos\").setValue(DOFSwitch.xpos() - DOFSwitchInputs*100)\n\n\n            # Add to DOF List Knob #   \n            CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n        \n            dofNodeString =  CTRLNode.knob(\"dofNodeList\").getValue()\n\n            dofNodeList = dofNodeString.split(\" \")\n\n            if \"OpticalZDefocus\" not in dofNodeList:\n                dofNodeList.append(\"OpticalZDefocus\")\n        \n                dofNodeNewList = \" \".join(dofNodeList)\n        \n                CTRLNode.knob(\"dofNodeList\").setValue(dofNodeNewList)\n\n                # Add Node to Dropdown #\n\n                DOFToolDropdown = \"\\n\".join(dofNodeNewList)\n\n                CTRLNode.knob(\"defocusTool\").setValues(dofNodeList)\n                \n        else:\n            print \"Node Already Exists\"\n\n    else:\n        print \"Not Found\"\n\n\naddOpcitalZDOF()" +STARTLINE}
+ addUserKnob {22 AddpgBokeh l "Add pgBokeh" -STARTLINE T "def addPGBokeh():\n    nuke.root().begin()\n\n    #deselect all\n    for node in nuke.allNodes():\n        node.knob('selected').setValue(False)\n\n    masterDOF = nuke.toNode(\"GQ_LensFX\")\n    masterDOFCTRLS = masterDOF.name() + \".LensFX_CTRLs.\"\n\n    ## Check for pgBokeh ##\n    name = \"pgBokeh1\"\n    pgBokeh = \"\"\n\n    for node in nuke.allNodes():\n        if name == node.knob(\"name\").value():\n            pgBokeh = node\n\n        else:\n            pass\n\n    ## Add Node to GQ_LensFX ##\n    if pgBokeh != \"\":\n        pgBokeh.knob('selected').setValue(True)\n\n        nuke.nodeCopy(\"%clipboard%\")\n        masterDOF.begin()\n        \n        bokehNodeCheck = 0\n        \n        for node in nuke.allNodes():\n            if node.name() == \"LensFX_PGBokeh\":\n                bokehNodeCheck += 1\n            else:\n                bokehNodeCheck += 0\n                \n        \n        if bokehNodeCheck == 0:        \n            for node in nuke.allNodes():\n                node.knob('selected').setValue(False)\n\n            pgBokeh = nuke.nodePaste(\"%clipboard%\")\n\n            # Connect Values #\n            pgBokeh.knob(\"focalPlane\").setExpression(masterDOFCTRLS + \"dofFocalPlane\")\n            pgBokeh.knob(\"focusRegionSize\").setExpression(masterDOFCTRLS + \"pgBokehRegionSize\")\n            pgBokeh.knob(\"fStop\").setExpression(masterDOFCTRLS + \"fStopValue\")\n            pgBokeh.knob(\"focalLength\").setExpression(masterDOFCTRLS + \"focalLengthInt\")\n            pgBokeh.knob(\"apertureWidth\").setExpression(masterDOFCTRLS + \"apertureSize.w\")\n            pgBokeh.knob(\"apertureHeight\").setExpression(masterDOFCTRLS + \"apertureSize.h\")\n\n            pgBokeh.knob(\"realWorldLens\").setValue(1)\n            pgBokeh.knob(\"worldScale\").setValue(1)\n            pgBokeh.knob(\"filmFormat\").setValue(9)\n            pgBokeh.knob(\"kernelType\").setValue(0)\n            pgBokeh.knob(\"max_kernelsize\").setValue(52)\n            #pgBokeh.knob(\"kNumSides\").setExpression(masterDOFCTRLS + \"apertureBladesInt\")\n            pgBokeh.knob(\"name\").setValue(\"LensFX_PGBokeh\")\n            \n            pgBokeh.knob(\"disable\").setExpression(masterDOFCTRLS + \"DisableDOF\")\n\n            # Connect to Graph #\n            SourceInput = nuke.toNode(\"AdjBBox1\")\n            kernelInput = nuke.toNode(\"kernelOut\")\n            DOFSwitch = nuke.toNode(\"DOF_Switch\")\n            DOFSwitchInputs = DOFSwitch.inputs()\n\n            pgBokeh.connectInput(0,SourceInput)\n            pgBokeh.connectInput(1,kernelInput)\n            DOFSwitch.connectInput(DOFSwitchInputs,pgBokeh)\n\n            # Set Position #\n            pgBokeh.knob(\"ypos\").setValue(DOFSwitch.ypos())\n            pgBokeh.knob(\"xpos\").setValue(DOFSwitch.xpos() - DOFSwitchInputs*100)\n\n\n            # Add to DOF List Knob #   \n            CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n        \n            dofNodeString =  CTRLNode.knob(\"dofNodeList\").getValue()\n\n            dofNodeList = dofNodeString.split(\" \")\n\n            if \"pgBokeh\" not in dofNodeList:\n                dofNodeList.append(\"pgBokeh\")\n        \n                dofNodeNewList = \" \".join(dofNodeList)\n        \n                CTRLNode.knob(\"dofNodeList\").setValue(dofNodeNewList)\n\n                # Add Node to Dropdown #\n\n                DOFToolDropdown = \"\\n\".join(dofNodeNewList)\n\n                CTRLNode.knob(\"defocusTool\").setValues(dofNodeList)\n\n        else:\n            print \"Node Already Exists\"\n\n    else:\n        print \"Not Found\"\n\n\naddPGBokeh()"}
  addUserKnob {22 ResetDOFNodes l "Reset DOF Nodes" T "def resetDOFTools():\n\n    #masterNode = nuke.toNode(\"GQ_LensFX\")\n    masterDOF = nuke.thisNode()\n    CTRLNode = nuke.toNode(\"LensFX_CTRLs\")\n    zDofNode = nuke.toNode(\"LensFX_ZDefocus\")\n\n    DOFSwitch = nuke.toNode(\"DOF_Switch\")\n\n\n    # Reset Dropdown Menu #\n    CTRLNode.knob(\"defocusTool\").setValues(\[\"zDefocus\"])\n\n    # Reset DOF Node String #\n    CTRLNode.knob(\"dofNodeList\").setValue(\"zDefocus\")\n\n    # Disconnect DOF Nodes #\n    DOFSwitchInputs = DOFSwitch.inputs()\n    i = 0\n    while i < DOFSwitchInputs:\n      DOFSwitch.setInput(i, None)\n      i += 1\n    DOFSwitch.connectInput(0,zDofNode)\n\n    opticalZDof = nuke.toNode(\"LensFX_OpticalZDefocus\")\n    pgBokeh = nuke.toNode(\"LensFX_PGBokeh\")\n    try:    \n        nuke.delete(opticalZDof)\n    except:\n        pass\n\n    try:    \n        nuke.delete(pgBokeh)\n    except:\n        pass\n\nresetDOFTools()" +STARTLINE}
 }
  StickyNote {
@@ -117,7 +119,7 @@ Group {
   xpos -412
   ypos -660
  }
-set N20f88400 [stack 0]
+set Nc35ad400 [stack 0]
  AdjBBox {
   numpixels {{parent.LensFX_CTRLs.addBBox}}
   name AdjBBox1
@@ -125,7 +127,7 @@ set N20f88400 [stack 0]
   ypos -536
   disable {{parent.LensFX_CTRLs.DisableDOF}}
  }
-set N20f89400 [stack 0]
+set Nc35ac000 [stack 0]
  Input {
   inputs 0
   name Custom_Kernel
@@ -158,19 +160,19 @@ set N20f89400 [stack 0]
   xpos -721
   ypos -717
  }
- Reformat {
-  type scale
-  scale 0.2
-  name Reformat3
-  xpos -721
-  ypos -660
- }
  Switch {
   inputs 2
   which {{parent.LensFX_CTRLs.useCustomKernel}}
   name Switch1
   xpos -721
-  ypos -606
+  ypos -634
+ }
+ Reformat {
+  type scale
+  scale 0.2
+  name Reformat3
+  xpos -721
+  ypos -591
  }
  Dot {
   name kernelOut
@@ -178,7 +180,7 @@ set N20f89400 [stack 0]
   xpos -687
   ypos -552
  }
-push $N20f89400
+push $Nc35ac000
  ZDefocus2 {
   inputs 2
   math depth
@@ -246,7 +248,7 @@ push $N20f89400
    xpos 116
    ypos -242
   }
-set N20fdec00 [stack 0]
+set Nfda68000 [stack 0]
   Keyer {
    operation "luminance key"
    range {0 64 64 64}
@@ -266,7 +268,7 @@ set N20fdec00 [stack 0]
    xpos 344
    ypos -143
   }
-set N20fde000 [stack 0]
+set Nfdb6d400 [stack 0]
   Input {
    inputs 0
    name MergeMask
@@ -279,7 +281,7 @@ set N20fde000 [stack 0]
    xpos 503
    ypos 745
   }
-push $N20fde000
+push $Nfdb6d400
   Glow2 {
    channels all
    tint {{parent.expoGlow1.tint}}
@@ -298,8 +300,8 @@ push $N20fde000
    xpos 1630
    ypos -59
   }
-  set C2100d400 [stack 0]
-push $N20fde000
+  set Cfdb6c400 [stack 0]
+push $Nfdb6d400
   Glow2 {
    channels all
    tint {{parent.expoGlow1.tint}}
@@ -312,12 +314,12 @@ push $N20fde000
    xpos 1500
    ypos -109
   }
-clone $C2100d400 {
+clone $Cfdb6c400 {
    xpos 1500
    ypos -67
    selected false
   }
-push $N20fde000
+push $Nfdb6d400
   Glow2 {
    channels all
    tint {{parent.expoGlow1.tint}}
@@ -330,12 +332,12 @@ push $N20fde000
    xpos 1362
    ypos -105
   }
-clone $C2100d400 {
+clone $Cfdb6c400 {
    xpos 1362
    ypos -68
    selected false
   }
-push $N20fde000
+push $Nfdb6d400
   Glow2 {
    channels all
    tint {{parent.expoGlow1.tint}}
@@ -348,12 +350,12 @@ push $N20fde000
    xpos 1259
    ypos -105
   }
-clone $C2100d400 {
+clone $Cfdb6c400 {
    xpos 1259
    ypos -68
    selected false
   }
-push $N20fde000
+push $Nfdb6d400
   Glow2 {
    channels all
    tint {{parent.expoGlow1.tint}}
@@ -366,12 +368,12 @@ push $N20fde000
    xpos 1122
    ypos -106
   }
-clone $C2100d400 {
+clone $Cfdb6c400 {
    xpos 1122
    ypos -68
    selected false
   }
-push $N20fde000
+push $Nfdb6d400
   Glow2 {
    channels all
    tint {{parent.expoGlow1.tint}}
@@ -384,12 +386,12 @@ push $N20fde000
    xpos 1004
    ypos -109
   }
-clone $C2100d400 {
+clone $Cfdb6c400 {
    xpos 1004
    ypos -63
    selected false
   }
-push $N20fde000
+push $Nfdb6d400
   Glow2 {
    channels all
    tint {{parent.expoGlow1.tint}}
@@ -402,12 +404,12 @@ push $N20fde000
    xpos 872
    ypos -110
   }
-clone $C2100d400 {
+clone $Cfdb6c400 {
    xpos 872
    ypos -63
    selected false
   }
-push $N20fde000
+push $Nfdb6d400
   Glow2 {
    channels all
    tint {{parent.expoGlow1.tint}}
@@ -420,12 +422,12 @@ push $N20fde000
    xpos 730
    ypos -111
   }
-clone $C2100d400 {
+clone $Cfdb6c400 {
    xpos 730
    ypos -62
    selected false
   }
-push $N20fde000
+push $Nfdb6d400
   Glow2 {
    channels all
    tint {{parent.expoGlow1.tint}}
@@ -438,12 +440,12 @@ push $N20fde000
    xpos 598
    ypos -108
   }
-clone $C2100d400 {
+clone $Cfdb6c400 {
    xpos 598
    ypos -64
    selected false
   }
-push $N20fde000
+push $Nfdb6d400
   Glow2 {
    channels all
    tint {{parent.expoGlow1.tint}}
@@ -456,12 +458,12 @@ push $N20fde000
    xpos 483
    ypos -109
   }
-clone $C2100d400 {
+clone $Cfdb6c400 {
    xpos 480
    ypos -65
    selected false
   }
-push $N20fde000
+push $Nfdb6d400
   Glow2 {
    channels all
    effect_only true
@@ -470,7 +472,7 @@ push $N20fde000
    xpos 344
    ypos -108
   }
-clone $C2100d400 {
+clone $Cfdb6c400 {
    xpos 344
    ypos -66
    selected false
@@ -483,56 +485,56 @@ clone $C2100d400 {
    xpos 344
    ypos -23
   }
-  set C55e3c000 [stack 0]
-clone $C55e3c000 {
+  set Cfd73f000 [stack 0]
+clone $Cfd73f000 {
    inputs 2
    xpos 344
    ypos 53
    selected false
   }
-clone $C55e3c000 {
+clone $Cfd73f000 {
    inputs 2
    xpos 344
    ypos 111
    selected false
   }
-clone $C55e3c000 {
+clone $Cfd73f000 {
    inputs 2
    xpos 344
    ypos 190
    selected false
   }
-clone $C55e3c000 {
+clone $Cfd73f000 {
    inputs 2
    xpos 344
    ypos 273
    selected false
   }
-clone $C55e3c000 {
+clone $Cfd73f000 {
    inputs 2
    xpos 344
    ypos 340
    selected false
   }
-clone $C55e3c000 {
+clone $Cfd73f000 {
    inputs 2
    xpos 344
    ypos 405
    selected false
   }
-clone $C55e3c000 {
+clone $Cfd73f000 {
    inputs 2
    xpos 344
    ypos 467
    selected false
   }
-clone $C55e3c000 {
+clone $Cfd73f000 {
    inputs 2
    xpos 344
    ypos 532
    selected false
   }
-clone $C55e3c000 {
+clone $Cfd73f000 {
    inputs 2
    xpos 344
    ypos 581
@@ -555,16 +557,16 @@ clone $C55e3c000 {
    xpos 344
    ypos 751
   }
-set N55ec1000 [stack 0]
-push $N55ec1000
-push $N20fdec00
-clone $C55e3c000 {
+set Nfd784000 [stack 0]
+push $Nfd784000
+push $Nfda68000
+clone $Cfd73f000 {
    inputs 2
    xpos 116
    ypos 777
-   selected true
+   selected false
   }
-set N55ec0c00 [stack 0]
+set Nfd601c00 [stack 0]
   Switch {
    inputs 3
    which {{ExpoGlowOut}}
@@ -577,7 +579,7 @@ set N55ec0c00 [stack 0]
    xpos 116
    ypos 889
   }
-push $N55ec0c00
+push $Nfd601c00
   Viewer {
    frame_range 100-346
    fps 25
@@ -617,11 +619,10 @@ push $N55ec0c00
   xpos -412
   ypos 145
  }
-push $N20f88400
+push $Nc35ad400
  NoOp {
   name LensFX_CTRLs
   knobChanged "\nn = nuke.thisNode()\nk = nuke.thisKnob()\n\nif k.name() == \"depthSample\":\n    depthPos = k.getValue()\n\n    depthSample = n.sample('z', depthPos\[0], depthPos\[1])\n\n    n.knob(\"dofFocalPlane\").setValue(depthSample)\n\nif k.name() == \"fStopSlider\":\n    fstopValue = k.getValue()\n    clickedfStopCheck = n.knob(\"clickedfStop\").getValue()\n\n    if clickedfStopCheck == 1:\n        if fstopValue == 1.4:\n            fstopValue =  1.4\n        elif 1.4 < fstopValue <= 2:\n            fstopValue =  2\n        elif 2 < fstopValue <= 2.8:\n            fstopValue =  2.8\n        elif 2.8 < fstopValue <= 4:\n            fstopValue =  4\n        elif 4 < fstopValue <= 5.6:\n            fstopValue =  5.6\n        elif 5.6 < fstopValue <= 8:\n            fstopValue =  8\n        elif 8 < fstopValue <= 11:\n            fstopValue =  11\n        elif 11 < fstopValue <= 16:\n            fstopValue =  16\n        elif 16 < fstopValue <= 22:\n            fstopValue =  22\n\n    else:\n        pass\n\n    DOFNodeName = ''.join(nuke.thisNode().fullName().split('.')\[:-1])\n    \n    nuke.root().begin()\n\n    DOFNode = nuke.toNode(DOFNodeName)\n\n\n    #DOFNodes = \[ x for x in nuke.allNodes() if x.name().startswith(\"GQ_Lens\")]    \n    #DOFNodes = nuke.thisNode()\n\n    #for node in DOFNodes:     \n        #node.knob(\"fstopValueDisplay\").setValue(str(fstopValue))\n\n    DOFNode.knob(\"fstopValueDisplay\").setValue(str(fstopValue))\n    \n\n"
-  selected true
   xpos -125
   ypos -654
   addUserKnob {20 User}
