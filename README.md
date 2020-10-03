@@ -28,7 +28,7 @@ The gizmo makes use of "Lens Sets" this is to emulate having a limited set of le
 
 - Focal Length
 - Glow
-- DOF Strength (only applicable for zDefocus, OpticalZDefocus and PGBokeh will use real world simulation)
+- DOF Strength (only applicable for zDefocus. - OpticalZDefocus and PGBokeh will use real world simulation)
 - Chromatic Aberration
 - Aperture Blades
 
