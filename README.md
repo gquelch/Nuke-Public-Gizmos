@@ -9,3 +9,8 @@ This is my own custom light wrap node, I find the default node frustrating as if
 
 
 There are also two types of blur, a standard soft Gaussian and an exponential, this allows you to get a more intense wrap around the edges with nice falloff, as well as softer colour bleed you can get with the standard lightwrap node
+
+<br></br>
+
+## ExpoGlow
+A more natural looking glow with a keyer to visually control threshold
